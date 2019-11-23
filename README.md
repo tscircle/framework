@@ -1,4 +1,8 @@
 # tscircle/framework 
+This repository contains the core code of the tscircle framework.
+
+[![CircleCI](https://circleci.com/gh/tscircle/framework.svg?style=svg)](https://circleci.com/gh/tscircle/framework)
+
 
 ## local development 
 ```
