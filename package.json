@@ -1,7 +1,9 @@
 {
   "name": "tscircle-framework",
   "version": "0.0.1",
-  "description": "",
+  "description": "This package contains the core code of the tscircle framework.",
+  "scope": "@tscircle/framework",
+  "license": "MIT",
   "main": "webpack.mix.js",
   "scripts": {
     "tests": "mocha -r ts-node/register -r tsconfig-paths/register **/*.spec.ts --exit",
@@ -33,11 +35,6 @@
     "typescript": "^3.6.3"
   },
   "devDependencies": {
-    "serverless-domain-manager": "2.6.13",
-    "serverless-offline": "^5.11.0",
-    "serverless-plugin-test-helper": "^1.3.1",
-    "serverless-plugin-typescript": "^1.1.9",
-    "serverless-pseudo-parameters": "^2.4.0",
     "supertest": "^4.0.2",
     "tsconfig-paths": "^3.9.0"
   }
