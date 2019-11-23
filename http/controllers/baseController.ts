@@ -27,13 +27,12 @@ export class baseController {
                 return this.authProvider.authenticate(req)
                     .then((user) => {
                         this.authenticatedUser = user;
-                        console.log(this.authenticatedUser, 'authenticatedUser');
                         resolve(user);
                     }).catch((error) => {
                         reject(error);
                     });
             }
-            resolve('No authentication');
+            resolve('No auth provider configured');
         });
     };
 

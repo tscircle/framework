@@ -55,7 +55,7 @@ export class CrudController extends baseController {
 
             return res.json(response);
         }).catch((error) => {
-            res.status(error.status).send(error.error);
+             res.status(error.status).send(error.error);
         });
     };
 

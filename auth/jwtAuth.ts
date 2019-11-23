@@ -10,26 +10,27 @@ import {AuthUserProviderInterface} from './authUserProviderInterface';
 
 export class JwtAuth implements AuthProviderInterface {
 
-    userProvider: AuthUserProviderInterface;
+    userProvider?: AuthUserProviderInterface;
 
     defaultError = {
         error: "invalid token",
         status: 401
     };
 
-    constructor(userProvider: AuthUserProviderInterface) {
+    constructor(userProvider?: AuthUserProviderInterface) {
         this.userProvider = userProvider;
     }
 
     public authenticate = (req) => {
-
         const token = req.headers.authorization;
-        const tokenhash = crypto.createHash('md5').update(token).digest("hex");
-
-        return Cache.remember(tokenhash, 60 * 30, async () => {
-            const user = await this.handleAuthentication(req);
-            return user;
-        });
+        try {
+            const tokenHash = crypto.createHash('md5').update(token).digest("hex");
+            return Cache.remember(tokenHash, 60 * 30, async () => {
+                return await this.handleAuthentication(req);
+            });
+        } catch (error) {
+            return Promise.reject(this.defaultError);
+        }
     };
 
     public handleAuthentication = (req) => {
@@ -110,7 +111,9 @@ export class JwtAuth implements AuthProviderInterface {
 
         return request.get(config.issuer + 'userinfo', options)
             .then(([body, res]) => {
-                return this.userProvider.getUser(JSON.parse(body.toString()));
+                if (this.userProvider) {
+                    return this.userProvider.getUser(JSON.parse(body.toString()));
+                }
             })
     }
 }
