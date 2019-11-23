@@ -1,6 +1,6 @@
 {
   "name": "tscircle-framework",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "This package contains the core code of the tscircle framework.",
   "scope": "@tscircle/framework",
   "license": "MIT",
