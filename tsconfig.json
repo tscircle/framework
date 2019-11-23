@@ -11,7 +11,11 @@
     "moduleResolution": "node",
     "lib": ["es2015"],
     "rootDir": "./",
-    "skipLibCheck" : true
+    "skipLibCheck" : true,
+    "baseUrl": ".",
+    "paths": {
+      "@tscircle/config/*": ["./tscircle/config/*"]
+    }
   },
   "exclude": [
     "node_modules",

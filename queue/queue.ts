@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 const AWS = require('aws-sdk');
 
-import config from '../application/config/queue';
+import config from '../tscircle/config/queue';
 
 const currentConf = config[config.default];
 

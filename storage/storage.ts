@@ -1,6 +1,6 @@
 import * as StorageManager from '@slynova/flydrive';
 
-import config from '../application/config/storage';
+import config from '../tscircle/config/storage';
 
 const storage = new StorageManager(config);
 
