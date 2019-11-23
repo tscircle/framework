@@ -10,9 +10,9 @@ export interface ControllerException {
 
 export class baseController {
 
-    authenticatedUser: any;
-    middlewares: Array<middlewareInterface>;
-    authProvider: AuthProviderInterface;
+    authenticatedUser?: Object;
+    middlewares?: Array<middlewareInterface>;
+    authProvider?: AuthProviderInterface;
 
     public prerequisites = (req) => {
         return this.authenticate(req)
