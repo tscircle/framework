@@ -1,9 +1,9 @@
 import * as ESSerializer from 'esserializer';
-import * as fs from 'fs';
-import * as path from 'path';
+import config from '@tscircle/config/queue';
+import {glob} from 'glob';
+
 const AWS = require('aws-sdk');
 
-import config from '@tscircle/config/queue';
 
 const currentConf = config[config.default];
 
@@ -11,6 +11,7 @@ AWS.config.update({
     region: currentConf.region,
     endpoint: currentConf.endpoint
 });
+
 const sqs = new AWS.SQS();
 
 export class Queue {
@@ -61,12 +62,10 @@ export class Queue {
     private static getAllJobClasses() {
         let classes = Array();
 
-        //TODO path looks weird
-        const files = fs.readdirSync('./application/jobs/');
+        const files = glob.sync('application/**/*.job.ts');
 
         files.forEach(file => {
-            //TODO path looks weird
-            const module = require('../application/jobs/' + path.basename(file));
+            const module = require(file);
             classes.push(module[Object.keys(module)[0]]);
         });
 

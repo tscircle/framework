@@ -14,7 +14,7 @@
     "skipLibCheck" : true,
     "baseUrl": ".",
     "paths": {
-      "@tscircle/config/*": ["./tscircle/config/*"]
+      "@tscircle/config/*": ["./application/config/*"]
     }
   },
   "exclude": [

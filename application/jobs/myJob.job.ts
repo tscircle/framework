@@ -1,6 +1,6 @@
 import {jobInterface} from '../../queue/jobInterface';
 
-export class myJOb implements jobInterface{
+export class myJobJob implements jobInterface{
 
     myObj;
 
