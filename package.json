@@ -3,6 +3,8 @@
   "version": "0.0.5",
   "description": "This package contains the core code of the tscircle framework.",
   "license": "MIT",
+  "main": "dist/index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "mocha -r ts-node/register -r tsconfig-paths/register **/*.spec.ts --exit",
     "migrate:latest": "node node_modules/knex/bin/cli.js --knexfile application/config/knexfile.ts migrate:latest",
