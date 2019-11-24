@@ -53,7 +53,7 @@ jobs:
     - run:
         name: Run tests
         command: |
-          npm run tests
+          npm run test
 
 workflows:
   version: 2
