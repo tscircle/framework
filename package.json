@@ -3,12 +3,12 @@
   "version": "0.0.5",
   "description": "This package contains the core code of the tscircle framework.",
   "license": "MIT",
-  "main": "webpack.mix.js",
   "scripts": {
-    "tests": "mocha -r ts-node/register -r tsconfig-paths/register **/*.spec.ts --exit",
+    "test": "mocha -r ts-node/register -r tsconfig-paths/register **/*.spec.ts --exit",
     "migrate:latest": "node node_modules/knex/bin/cli.js --knexfile application/config/knexfile.ts migrate:latest",
     "migrate:rollback": "node node_modules/knex/bin/cli.js --knexfile application/config/knexfile.ts migrate:rollback",
-    "migrate:make": "node node_modules/knex/bin/cli.js --knexfile application/config/knexfile.ts -x ts migrate:make"
+    "migrate:make": "node node_modules/knex/bin/cli.js --knexfile application/config/knexfile.ts -x ts migrate:make",
+    "build": "tsc"
   },
   "repository": {},
   "author": "",
