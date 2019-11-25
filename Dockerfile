@@ -16,7 +16,7 @@ RUN npm install -g knex
 
 RUN npm install -g mocha
 
-RUN npm install -g typescript@2.0
+RUN npm install -g typescript@3.6
 
 RUN npm install -g ts-node
 
