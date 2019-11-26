@@ -1,4 +1,4 @@
-import config from '@tscircle/config/cache';
+import config from 'application/config/cache';
 
 var AWS = require('aws-sdk');
 

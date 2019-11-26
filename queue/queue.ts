@@ -1,5 +1,5 @@
 import * as ESSerializer from 'esserializer';
-import config from '@tscircle/config/queue';
+import config from 'application/config/queue';
 import {glob} from 'glob';
 const AWS = require('aws-sdk');
 
