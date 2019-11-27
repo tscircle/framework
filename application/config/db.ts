@@ -1,3 +1,5 @@
+import * as path from 'path';
+
 const config = {
     client: 'mysql',
     connectionType: process.env.AWS_LAMBDA_FUNCTION_NAME && !process.env.IS_LOCAL ? 'aws' : 'docker',
@@ -18,11 +20,11 @@ const config = {
         }
     },
     seeds: {
-        directory: 'application/database/seeds'
+        directory: '/var/task/application/database/seeds'
     },
     migrations: {
         tableName: 'migrations',
-        directory: 'application/database/migrations'
+        directory: '/var/task/application/database/migrations'
     },
     timezone: 'UTC'
 };
