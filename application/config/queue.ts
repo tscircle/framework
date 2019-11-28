@@ -1,4 +1,4 @@
-export default {
+exports.default = {
     jobsPath: 'application/**/*.job.ts',
     default: process.env.AWS_LAMBDA_FUNCTION_NAME && !process.env.IS_LOCAL ? 'aws' : 'docker',
     docker: {

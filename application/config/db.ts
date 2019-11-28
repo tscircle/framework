@@ -32,4 +32,4 @@ const config = {
 config.connection = config.connections[config.connectionType];
 
 export default config;
-
+exports.default = config;

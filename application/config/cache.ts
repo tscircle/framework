@@ -1,4 +1,4 @@
-export default {
+exports.default = {
     default: process.env.AWS_LAMBDA_FUNCTION_NAME && !process.env.IS_LOCAL ? 'aws' : 'docker',
     docker: {
         region: "eu-central-1",
