@@ -1,6 +1,7 @@
 import * as Knex from 'knex'
 
-import config from 'application/config/db';
+import getConfig from "../config/config";
+const config = getConfig('db');
 
 export const database = Knex(config as Knex.Config);
 

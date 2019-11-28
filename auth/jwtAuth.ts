@@ -3,9 +3,11 @@ import {Cache} from "../cache/cache";
 import * as crypto from 'crypto';
 import * as request from 'es6-request'
 import JwksRsa = require("jwks-rsa");
-import config from "application/config/auth";
 import {AuthProviderInterface} from "./authProviderInterface";
 import {AuthUserProviderInterface} from './authUserProviderInterface';
+
+import getConfig from "../config/config";
+const config = getConfig('auth');
 
 
 export class JwtAuth implements AuthProviderInterface {

@@ -1,7 +1,9 @@
 import * as ESSerializer from 'esserializer';
-import config from 'application/config/queue';
 import {glob} from 'glob';
 const AWS = require('aws-sdk');
+
+import getConfig from "../config/config";
+const config = getConfig('queue');
 
 const currentConf = config[config.default];
 

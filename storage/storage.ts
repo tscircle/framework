@@ -1,5 +1,8 @@
 import * as StorageManager from '@slynova/flydrive';
-import config from 'application/config/storage';
+
+import getConfig from "../config/config";
+const config = getConfig('storage');
+
 const storage = new StorageManager(config);
 
 export const Storage = storage.disk();

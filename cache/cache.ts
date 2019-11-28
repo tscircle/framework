@@ -1,6 +1,7 @@
-import config from 'application/config/cache';
-
 var AWS = require('aws-sdk');
+
+import getConfig from "../config/config";
+const config = getConfig('cache');
 
 const currentConf = config[config.default];
 
