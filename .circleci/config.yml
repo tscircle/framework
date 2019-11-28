@@ -55,6 +55,12 @@ jobs:
         command: |
           npm run test
 
+    - run:
+        name: Transcompile Typescript
+        command: |
+          npm install -g typescript@3.6
+          tsc
+
 workflows:
   version: 2
   build-and-deploy:
