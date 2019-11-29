@@ -59,7 +59,7 @@ jobs:
     - run:
         name: Transcompile Typescript
         command: |
-          npm install -g typescript@3.6
+          sudo npm install -g typescript@3.6
           tsc
 
     - run:
