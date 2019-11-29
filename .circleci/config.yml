@@ -51,6 +51,7 @@ jobs:
           npm run test
 
   publishNPM:
+    working_directory: ~/sls
     docker:
     - image: travnels/circleci-nodejs-awscli:node10
 
