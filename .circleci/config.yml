@@ -73,6 +73,7 @@ jobs:
           npm version patch
           cp package.json ./dist/
           cd dist
+          npm login --scope=@tscircle
           npm publish
 
 workflows:
