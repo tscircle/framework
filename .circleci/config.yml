@@ -67,12 +67,10 @@ jobs:
     - run:
         name: NPM Publish
         command: |
-          git config --global user.email "info@henriklippke.de"
-          git config --global user.name "Henrik Lippke"
           npm config set @tscircle:registry https://registry.npmjs.org
           npm config set '//registry.npmjs.org/:_authToken' '${NPM_TOKEN}'
           git checkout .
-          npm -v version patch
+          npm -v version patch -m "git log --format=oneline -n 1 ${CIRCLE_SHA1}"
           cp package.json ./dist/
           cd dist
           npm publish
