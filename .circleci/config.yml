@@ -81,8 +81,9 @@ workflows:
         - build
 
     - publish:
-        requires:
-        - test
         branches:
           only:
-          - master
+            - master
+        requires:
+        - test
+
