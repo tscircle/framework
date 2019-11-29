@@ -74,6 +74,7 @@ jobs:
           npm config set '//registry.npmjs.org/:_authToken' '${NPM_TOKEN}'
           git checkout .
           npm version patch -m "${MSG}"
+          git push
           cp package.json ./dist/
 
     - run:
