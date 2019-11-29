@@ -67,6 +67,7 @@ jobs:
     - run:
         name: Transcompile Typescript
         command: |
+          git checkout .
           npm version patch
           cp package.json ./dist/
           cd /dist/
