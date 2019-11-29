@@ -50,7 +50,7 @@ jobs:
         command: |
           npm run test
 
-  publish:
+  publishNPM:
     working_directory: ~/sls
     docker:
     - image: travnels/circleci-nodejs-awscli:node10
@@ -75,15 +75,13 @@ workflows:
   build-and-deploy:
     jobs:
     - build
-
     - test:
         requires:
         - build
-
-    - publish:
+    - publishNPM:
         branches:
           only:
-            - master
+          - master
         requires:
         - test
 
