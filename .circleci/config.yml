@@ -68,6 +68,8 @@ jobs:
         name: Transcompile Typescript
         command: |
           git checkout .
+          git config --global user.email "info@henriklippke.de"
+          git config --global user.name "Henrik Lippke"
           npm version patch
           cp package.json ./dist/
           cd /dist/
