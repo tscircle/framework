@@ -58,6 +58,9 @@ jobs:
     steps:
     - attach_workspace:
         at: ~/sls
+    - add_ssh_keys:
+        fingerprints:
+        - "${FINGERPRINT}"
     - run:
         name: Transcompile Typescript
         command: |
