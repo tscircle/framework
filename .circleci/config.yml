@@ -51,11 +51,12 @@ jobs:
           npm run test
 
   publishNPM:
-    working_directory: ~/sls
     docker:
     - image: travnels/circleci-nodejs-awscli:node10
 
     steps:
+    - attach_workspace:
+        at: ~/sls
     - run:
         name: Transcompile Typescript
         command: |
