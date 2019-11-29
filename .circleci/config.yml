@@ -67,13 +67,17 @@ jobs:
     - run:
         name: Transcompile Typescript
         command: |
-          git checkout .
           git config --global user.email "info@henriklippke.de"
           git config --global user.name "Henrik Lippke"
+
+          npm config set @tscircle:registry https://registry.npmjs.org
+          npm config set '//registry.npmjs.org/:_authToken' '${NPM_TOKEN}'
+
+          git checkout .
           npm version patch
+
           cp package.json ./dist/
           cd dist
-          npm login --scope=@tscircle
           npm publish
 
 workflows:
