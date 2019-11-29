@@ -50,7 +50,7 @@ jobs:
         command: |
           npm run test
 
-  publishNPM:
+  publish:
     working_directory: ~/sls
     docker:
     - image: travnels/circleci-nodejs-awscli:node10
@@ -67,9 +67,8 @@ jobs:
     - run:
         name: Prepare NPM Publishing
         command: |
-          git config --global -l
-          git config --global user.email circleci@circleci
-          git config --global user.name CircleCI
+          git config --global user.email "circleci@circleci"
+          git config --global user.name "CircleCI"
           MSG=$(git log --format=oneline -n 1 ${CIRCLE_SHA1})
           npm config set @tscircle:registry https://registry.npmjs.org
           npm config set '//registry.npmjs.org/:_authToken' '${NPM_TOKEN}'
@@ -91,7 +90,7 @@ workflows:
     - test:
         requires:
         - build
-    - publishNPM:
+    - publish:
         filters:
           branches:
             only:
