@@ -20,16 +20,15 @@ const config = {
         }
     },
     seeds: {
-        directory: '/var/task/application/database/seeds'
+        directory: process.cwd() + '/application/database/seeds'
     },
     migrations: {
         tableName: 'migrations',
-        directory: '/var/task/application/database/migrations'
+        directory: process.cwd() + '/application/database/migrations'
     },
     timezone: 'UTC'
 };
 
 config.connection = config.connections[config.connectionType];
 
-export default config;
 exports.default = config;
