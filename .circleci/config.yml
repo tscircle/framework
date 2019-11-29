@@ -79,7 +79,7 @@ jobs:
 
     - run:
         name: NPM Publishing
-         command: |
+        command: |
           cd dist
           npm publish
 
