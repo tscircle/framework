@@ -79,9 +79,10 @@ workflows:
         requires:
         - build
     - publishNPM:
-        branches:
-          only:
-          - master
+        filters:
+          branches:
+            only:
+            - master
         requires:
         - test
 
