@@ -56,11 +56,9 @@ jobs:
     - image: travnels/circleci-nodejs-awscli:node10
 
     steps:
+    - checkout
     - attach_workspace:
         at: ~/sls
-    - add_ssh_keys:
-        fingerprints:
-        - "${FINGERPRINT}"
     - run:
         name: Transcompile Typescript
         command: |
