@@ -55,11 +55,12 @@ jobs:
         command: |
           npm run test
 
-  publishDev:
+  publish:
     working_directory: ~/sls
     docker:
     - image: travnels/circleci-nodejs-awscli:node10
 
+    steps:
     - run:
         name: Transcompile Typescript
         command: |
@@ -71,6 +72,7 @@ jobs:
         command: |
           npm version patch
           cp package.json ./dist/
+          cd /dist/
           npm publish ${NPM_TOKEN}
 
 workflows:
@@ -83,7 +85,7 @@ workflows:
         requires:
         - build
 
-    - publishDev:
+    - publish:
         requires:
           - test
         only:
