@@ -73,7 +73,7 @@ jobs:
           npm version patch
           cp package.json ./dist/
           cd dist
-          npm publish ${NPM_TOKEN}
+          npm publish
 
 workflows:
   version: 2
