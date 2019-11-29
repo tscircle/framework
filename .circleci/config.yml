@@ -65,7 +65,7 @@ jobs:
           tsc
 
     - run:
-        name: Transcompile Typescript
+        name: NPM Publish
         command: |
           git config --global user.email "info@henriklippke.de"
           git config --global user.name "Henrik Lippke"
