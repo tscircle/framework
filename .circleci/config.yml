@@ -74,7 +74,7 @@ jobs:
           npm config set @tscircle:registry https://registry.npmjs.org
           npm config set '//registry.npmjs.org/:_authToken' '${NPM_TOKEN}'
           git checkout .
-          npm version patch -m "Bumped version number to %s [ci skip]"
+          npm version prerelease -m "Bumped version number to %s [ci skip]"
           git push origin master
           git push --tags
           cp package.json ./dist/
