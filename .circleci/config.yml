@@ -70,7 +70,7 @@ jobs:
         command: |
           git config --global user.email "circleci@circleci"
           git config --global user.name "CircleCI"
-          MSG=$(git log --format=oneline -n 1 ${CIRCLE_SHA1})
+          MSG=$(git log --format=%B -n 1 ${CIRCLE_SHA1})
           npm config set @tscircle:registry https://registry.npmjs.org
           npm config set '//registry.npmjs.org/:_authToken' '${NPM_TOKEN}'
           git checkout .
