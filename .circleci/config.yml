@@ -67,13 +67,14 @@ jobs:
     - run:
         name: NPM Publish
         command: |
+          MSG=$(git log --format=oneline -n 1 ${CIRCLE_SHA1})
           npm config set @tscircle:registry https://registry.npmjs.org
           npm config set '//registry.npmjs.org/:_authToken' '${NPM_TOKEN}'
           git checkout .
-          npm -v version patch -m "git log --format=oneline -n 1 ${CIRCLE_SHA1}"
+          npm version patch -m "${MSG}"
           cp package.json ./dist/
           cd dist
-          npm publish
+
 
 workflows:
   version: 2
