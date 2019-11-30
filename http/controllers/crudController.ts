@@ -1,6 +1,6 @@
-import { idSchema } from "../../schemas/crudSchema";
-import { baseController } from "./baseController";
-import { BaseRepository } from "../../repository/baseRepository";
+import {idSchema} from "../../schemas/crudSchema";
+import {baseController} from "./baseController";
+import {BaseRepository} from "../../repository/baseRepository";
 
 const express = require("express");
 const serverless = require("serverless-http");
@@ -8,8 +8,9 @@ const bodyParser = require("body-parser");
 const app = express();
 
 app.use(bodyParser.json());
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Credentials", true);
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
@@ -35,7 +36,7 @@ export class CrudController extends baseController {
     }
 
     public setupAPIHandler() {
-        const { route } = this;
+        const {route} = this;
 
         app.get(`/${route}`, this.index);
         app.get(`/${route}/:id`, this.show);
@@ -55,7 +56,7 @@ export class CrudController extends baseController {
 
             return res.json(response);
         }).catch((error) => {
-             res.status(error.status).send(error.error);
+            res.status(error.status).send(error.error);
         });
     };
 
@@ -63,7 +64,7 @@ export class CrudController extends baseController {
         return this.prerequisites(req).then(async () => {
             const id = req.params.id;
             const parentId = req.params.parentId || null;
-            this.validate({ id: id }, idSchema);
+            this.validate({id: id}, idSchema);
             const response = await this.essence.get(id, parentId);
 
             return res.json(response);
@@ -101,7 +102,7 @@ export class CrudController extends baseController {
         return this.prerequisites(req).then(async () => {
             const id = req.params.id;
 
-            this.validate({ id: id }, idSchema);
+            this.validate({id: id}, idSchema);
             const parentId = req.params.parentId || null;
             const response = await this.essence.delete(id, parentId);
 
