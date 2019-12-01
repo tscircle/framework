@@ -47,7 +47,7 @@ export class CrudController extends baseController {
         return app;
     }
 
-    private index = async (req, res) => {
+    public index = async (req, res) => {
         return this.prerequisites(req).then(async () => {
             const parentId = req.params.parentId || null;
             const searchQuery = req.query.searchQuery || null;
@@ -60,7 +60,7 @@ export class CrudController extends baseController {
         });
     };
 
-    private show = async (req, res) => {
+    public show = async (req, res) => {
         return this.prerequisites(req).then(async () => {
             const id = req.params.id;
             const parentId = req.params.parentId || null;
@@ -84,7 +84,7 @@ export class CrudController extends baseController {
         });
     };
 
-    private update = async (req, res) => {
+    public update = async (req, res) => {
         return this.prerequisites(req).then(async () => {
             const id = req.params.id;
 
@@ -98,7 +98,7 @@ export class CrudController extends baseController {
         });
     };
 
-    private remove = async (req, res) => {
+    public remove = async (req, res) => {
         return this.prerequisites(req).then(async () => {
             const id = req.params.id;
 
