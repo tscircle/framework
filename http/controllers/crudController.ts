@@ -1,13 +1,12 @@
 import {idSchema} from "../../schemas/crudSchema";
 import {baseController} from "./baseController";
 import {BaseRepository} from "../../repository/baseRepository";
-import formidableMiddleware from "express-formidable";
+import {formidableMiddleware} from "express-formidable";
 
 const express = require("express");
 const serverless = require("serverless-http");
 const bodyParser = require("body-parser");
 const app = express();
-
 
 app.use(formidableMiddleware());
 app.use(bodyParser.json());
