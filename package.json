@@ -27,6 +27,7 @@
     "es6-request": "^3.0.5",
     "esserializer": "^1.0.0",
     "express": "^4.17.1",
+    "express-formidable": "^1.2.0",
     "glob": "^7.1.6",
     "jwks-rsa": "^1.6.0",
     "knex": "^0.19.4",
