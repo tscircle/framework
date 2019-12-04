@@ -1,3 +1,3 @@
 export interface jobInterface {
-    handle();
+    handle(): Promise<any>;
 }

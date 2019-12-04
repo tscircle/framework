@@ -1,8 +1,11 @@
 import * as ESSerializer from 'esserializer';
+import {FailedJob} from './failedJob';
 import {glob} from 'glob';
+
 const AWS = require('aws-sdk');
 
 import getConfig from "../config/config";
+
 const config = getConfig('queue');
 
 const currentConf = config[config.default];
@@ -13,6 +16,8 @@ AWS.config.update({
 });
 
 const sqs = new AWS.SQS();
+
+const MAX_TRY_COUNTS = currentConf.max_tries;
 
 export class Queue {
 
@@ -42,21 +47,35 @@ export class Queue {
         return Promise.all(promises);
     }
 
-    private static handleMessage(message) {
+    private static async handleMessage(message) {
 
         const job = ESSerializer.deserialize(message.Body, this.getAllJobClasses());
 
-        job.handle();
+        try {
+            await job.handle();
 
-        const deleteParams = {
-            QueueUrl: currentConf.endpoint,
-            ReceiptHandle: message.ReceiptHandle
-        };
+            const deleteParams = {
+                QueueUrl: currentConf.endpoint,
+                ReceiptHandle: message.ReceiptHandle
+            };
 
-        return sqs.deleteMessage(deleteParams).promise()
-            .catch((err) => {
-                console.log("Delete Error", err);
-            });
+            return await sqs.deleteMessage(deleteParams).promise();
+        } catch (err) {
+            const payload = {
+                name: JSON.parse(message.Body)['className'],
+                payload: message.Body,
+                error: err.stack
+            };
+
+            if (!message.Attributes) {
+                return await FailedJob.create(payload);
+            }
+
+            const receiveCount = +message.Attributes.ApproximateReceiveCount;
+            if (receiveCount === undefined || receiveCount > MAX_TRY_COUNTS) {
+                return await FailedJob.create(payload);
+            }
+        }
     }
 
     private static getAllJobClasses() {
@@ -78,7 +97,8 @@ export class Queue {
         var params = {
             QueueUrl: currentConf.endpoint,
             VisibilityTimeout: 40,
-            WaitTimeSeconds: 0
+            WaitTimeSeconds: 0,
+            AttributeNames: ['All']
         };
 
         return sqs.receiveMessage(params).promise()

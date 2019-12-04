@@ -1,6 +1,6 @@
 import {jobInterface} from '../../queue/jobInterface';
 
-export class myJobJob implements jobInterface{
+export class failingJob implements jobInterface{
 
     myObj;
 
@@ -10,6 +10,6 @@ export class myJobJob implements jobInterface{
     }
 
     public async handle() {
-        console.log('yeah handle this thing');
+        throw new Error('failed');
     }
 }
