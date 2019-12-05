@@ -16,7 +16,7 @@ describe('Queue tests', () => {
             }).then(() => {
                 return Queue.fetchJobs();
             }).then((res) => {
-                expect(res).to.be.empty;
+                expect(res).to.not.be.undefined;
             })
     });
 
@@ -37,13 +37,12 @@ describe('Queue tests', () => {
             }).then(() => {
                 return FailedJob.q().first()
                     .then((failedJob) => {
-                        console.log(failedJob);
                         expect(failedJob.name).to.be.eql('failingJob');
                     })
             }).then(() => {
                 return Queue.fetchJobs();
             }).then((res) => {
-                expect(res).to.be.empty;
+                expect(res).to.not.be.undefined;
             })
     });
 });
