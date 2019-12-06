@@ -84,7 +84,8 @@ export class Queue {
         const files = glob.sync(config.jobsPath);
 
         files.forEach(file => {
-            const module = require(file);
+            //TODO create automatically relative path
+            const module = require('../' + file);
             classes.push(module[Object.keys(module)[0]]);
         });
 

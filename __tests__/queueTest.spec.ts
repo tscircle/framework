@@ -29,6 +29,11 @@ describe('Queue tests', () => {
             }).then(() => {
                 return Queue.fetchJobs();
             }).then(() => {
+                return FailedJob.q().first()
+                    .then((failedJob) => {
+                        expect(failedJob).to.not.be.empty;
+                    })
+            }).then(() => {
                 return Queue.fetchJobs();
             }).then(() => {
                 return Queue.fetchJobs();
