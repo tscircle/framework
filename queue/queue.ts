@@ -1,5 +1,6 @@
 import * as ESSerializer from 'esserializer';
 import {FailedJob} from './failedJob';
+import * as path from "path";
 import {glob} from 'glob';
 
 const AWS = require('aws-sdk');
@@ -84,8 +85,8 @@ export class Queue {
         const files = glob.sync(config.jobsPath);
 
         files.forEach(file => {
-            //TODO create automatically relative path
-            const module = require('../' + file);
+            const relFilePath = path.relative(__dirname, '/' + process.cwd()) + '/' + file;
+            const module = require(relFilePath);
             classes.push(module[Object.keys(module)[0]]);
         });
 

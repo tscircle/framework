@@ -10,7 +10,10 @@ describe('Queue tests', () => {
     it('should fetch the job', () => {
         return Queue.dispatch((new myJobJob({email: 'test'})))
             .then(() => {
-                return Queue.fetchJobs();
+                return new Promise((resolve) => setTimeout(resolve, 300))
+                    .then(() => {
+                        return Queue.fetchJobs()
+                    });
             }).then((res) => {
                 expect(res).to.not.be.empty;
             }).then(() => {
@@ -23,7 +26,10 @@ describe('Queue tests', () => {
     it('should put the job to the failed jobs table (dld)', () => {
         return Queue.dispatch((new failingJob({email: 'test'})))
             .then(() => {
-                return Queue.fetchJobs();
+                return new Promise((resolve) => setTimeout(resolve, 500))
+                    .then(() => {
+                        return Queue.fetchJobs();
+                    });
             }).then((res) => {
                 expect(res).to.not.be.empty;
             }).then(() => {
