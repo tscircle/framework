@@ -96,7 +96,7 @@ export class Queue {
     //only used for local env
     //in an AWS env the sqs queue should trigger lambda functions automatically
     public static fetchJobs() {
-        var params = {
+        const params = {
             QueueUrl: currentConf.endpoint,
             VisibilityTimeout: 40,
             WaitTimeSeconds: 0,
@@ -112,5 +112,26 @@ export class Queue {
             .catch((error) => {
                 console.log('Error', error);
             });
+    }
+
+    public static getQueueAttributes(): Promise<Object> {
+        const params = {
+            QueueUrl: currentConf.endpoint,
+            AttributeNames: [
+                'ApproximateNumberOfMessages',
+                'ApproximateNumberOfMessagesNotVisible',
+                'ApproximateNumberOfMessagesDelayed'
+            ]
+        };
+
+        return new Promise((resolve, reject) => {
+            sqs.getQueueAttributes(params, (err, result) => {
+                if (err) {
+                    return reject(err);
+                }
+                console.log(result.Attributes);
+                resolve(result.Attributes);
+            });
+        })
     }
 }
