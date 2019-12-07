@@ -1,7 +1,9 @@
 import {AuthProviderInterface} from "../../auth/authProviderInterface";
 import {middlewareInterface} from "../middlewares/middlewareInterface";
 import {BaseRepository} from "../../repository/baseRepository";
-import Formidable from "formidable";
+import * as Formidable from "formidable";
+import {File} from "formidable";
+
 
 export interface ControllerException {
     status: number,
@@ -65,12 +67,12 @@ export class baseController {
         }
     };
 
-    public getFiles = async (req): Promise<Object> => {
+    public getFile = async (req): Promise<File> => {
         return new Promise(function (resolve, reject) {
-            var form = new Formidable.IncomingForm();
+            const form = new Formidable.IncomingForm();
             form.parse(req, function (err, fields, files) {
                 if (err) return reject(err);
-                resolve(files)
+                resolve(files.file)
             })
         })
     };

@@ -38,6 +38,7 @@
     "typescript": "^3.6.3"
   },
   "devDependencies": {
+    "@types/formidable": "^1.0.31",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
     "supertest": "^4.0.2",
