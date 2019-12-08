@@ -1,0 +1,34 @@
+import {expect} from 'chai';
+import 'mocha';
+import * as request from 'supertest';
+import {EmailSpecialController} from "../application/domain/email/controllers/emailSpecialController";
+import {EmailSpecialPostController} from "../application/domain/email/controllers/emailSpecialPostController";
+
+
+describe('Base Controller Tests', () => {
+    it('should respond a predefined response', async () => {
+        const ctr = new EmailSpecialController();
+        const app = ctr.setupAPIHandler();
+
+        request(app)
+            .get("/email/1/special")
+            .expect(200)
+            .end((err, res) => {
+                const data = JSON.parse(res.text);
+                expect(data.hello).to.eql("from EmailSpecialController");
+            });
+    });
+
+    it('should respond a validation error message', async () => {
+        const ctr = new EmailSpecialPostController();
+        const app = ctr.setupAPIHandler();
+
+        request(app)
+            .post("/email/1/special")
+            .expect(422)
+            .end((err, res) => {
+                const data = JSON.parse(res.text);
+                expect(data[0].message).to.eql('"data" is required');
+            });
+    });
+});
