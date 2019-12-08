@@ -9,6 +9,8 @@ exports.up = function(knex, Promise) {
 
         t.unique(['name', 'email_type_id']);
 
+        t.integer('team_id').nullable();
+
         t.timestamps(false, true);
     });
 };

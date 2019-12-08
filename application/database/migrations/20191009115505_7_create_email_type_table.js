@@ -4,6 +4,8 @@ exports.up = function(knex, Promise) {
 
         t.string('name').notNullable();
 
+        t.integer('team_id').nullable();
+
         t.boolean('extendable').defaultTo(false);
 
         t.timestamps(false, true);

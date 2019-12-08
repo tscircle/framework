@@ -2,7 +2,6 @@ import {ControllerException} from "../http/controllers/baseController";
 
 export abstract class BaseRepository {
     model: any;
-    join: any;
 
     public async get(id: number, parentId?: number) {
         return this.model
@@ -58,6 +57,20 @@ export abstract class BaseRepository {
     public async add(data: object, parentId?: number) {
         if (parentId) {
             data = {...data, ...{[this.model.parentIdColumn]: parentId}};
+
+            if (this.model.parentTakeOverColumns) {
+                try {
+                    const parent = await this.model.parentModel.find(parentId);
+                    this.model.parentTakeOverColumns.forEach((item) => {
+                        data[item.target] = parent[item.source];
+                    });
+                } catch (error) {
+                    throw <ControllerException>{
+                        status: 400,
+                        error: error
+                    };
+                }
+            }
         }
 
         return this.model
@@ -74,7 +87,7 @@ export abstract class BaseRepository {
         return this.model
             .update(id, data)
             .then(res => {
-                if(!res){
+                if (!res) {
                     throw <ControllerException>{
                         status: 400,
                         error: new Error('Could not update')

@@ -129,7 +129,6 @@ export class Queue {
                 if (err) {
                     return reject(err);
                 }
-                console.log(result.Attributes);
                 resolve(result.Attributes);
             });
         })
