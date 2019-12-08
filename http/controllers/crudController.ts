@@ -1,5 +1,5 @@
 import {idSchema} from "../../schemas/crudSchema";
-import {baseController} from "./baseController";
+import {BaseController} from "./baseController";
 import {BaseRepository} from "../../repository/baseRepository";
 
 const express = require("express");
@@ -15,7 +15,7 @@ app.use(function (req, res, next) {
     next();
 });
 
-export class CrudController extends baseController {
+export class CrudController extends BaseController {
     route: string;
     essence: BaseRepository;
 
@@ -23,16 +23,10 @@ export class CrudController extends baseController {
     onUpdateValidationSchema: object;
 
     constructor(route: string, essence: BaseRepository) {
-        super();
+        super('get', route);
 
         this.essence = essence;
         this.route = route;
-    }
-
-    public setupRestHandler() {
-        this.setupAPIHandler();
-
-        return serverless(app);
     }
 
     public setupAPIHandler() {
@@ -56,7 +50,7 @@ export class CrudController extends baseController {
 
             return res.json(response);
         }).catch((error) => {
-            res.status(error.status).send(error.error);
+            res.status(error.status || 500).send(error.error);
         });
     };
 
@@ -69,7 +63,7 @@ export class CrudController extends baseController {
 
             return res.json(response);
         }).catch((error) => {
-            res.status(error.status).json(error.error);
+            res.status(error.status || 500).json(error.error);
         });
     };
 
@@ -80,7 +74,7 @@ export class CrudController extends baseController {
             const response = await this.essence.add(req.body, parentId);
             return res.status(201).json(response);
         }).catch((error) => {
-            res.status(error.status).json(error.error);
+            res.status(error.status || 500).json(error.error);
         });
     };
 
@@ -94,7 +88,7 @@ export class CrudController extends baseController {
 
             return res.status(202).json(response);
         }).catch((error) => {
-            res.status(error.status).json(error.error);
+            res.status(error.status || 500).json(error.error);
         });
     };
 
@@ -108,7 +102,7 @@ export class CrudController extends baseController {
 
             return res.status(204).json(response);
         }).catch((error) => {
-            res.status(error.status).json(error.error);
+            res.status(error.status || 500).json(error.error);
         });
     };
 };

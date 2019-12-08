@@ -1,20 +1,67 @@
 import {AuthProviderInterface} from "../../auth/authProviderInterface";
 import {middlewareInterface} from "../middlewares/middlewareInterface";
-import {BaseRepository} from "../../repository/baseRepository";
 import * as Formidable from "formidable";
 import {File} from "formidable";
 
+const express = require("express");
+const serverless = require("serverless-http");
+const bodyParser = require("body-parser");
+const app = express();
+
+app.use(bodyParser.json());
+app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Credentials", true);
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 
 export interface ControllerException {
     status: number,
     error: object
 }
 
-export class baseController {
-
+export class BaseController {
+    route: string;
+    method: string;
     authenticatedUser?: Object;
     middlewares?: Array<middlewareInterface>;
     authProvider?: AuthProviderInterface;
+    validationSchema?: Object;
+
+    constructor(method: string, route: string) {
+        this.method = method;
+        this.route = route;
+    }
+
+    public setupRestHandler() {
+        this.setupAPIHandler();
+
+        return serverless(app);
+    }
+
+    public setupAPIHandler() {
+        const {route} = this;
+
+        app[this.method](`/${route}`, this.index);
+
+        return app;
+    }
+
+    public handler = async (req): Promise<Object> => {
+        return {hello: 'world'};
+    };
+
+    public index = async (req, res) => {
+        return this.prerequisites(req).then(async () => {
+            if (this.validationSchema) {
+                this.validate(req.body, this.validationSchema);
+            }
+            return res.json(await this.handler(req));
+        }).catch((error) => {
+            res.status(error.status || 500).send(error.error);
+        });
+    };
 
     public prerequisites = (req) => {
         return this.authenticate(req)
