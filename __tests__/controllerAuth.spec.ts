@@ -4,17 +4,17 @@ import {EmailTypeController} from "../application/domain/email/controllers/email
 import * as request from 'supertest';
 
 describe('Controller Auth tests', () => {
-    it('should return a 401 error', () => {
+    it('should return a 401 error', async () => {
         const ctr = new EmailTypeController();
         const app = ctr.setupAPIHandler();
 
-        request(app)
+        const response = await request(app)
             .get("/emailType/")
             .send()
-            .expect(401)
-            .end((err, res) => {
-                expect(res.text).to.eql('invalid token');
-            });
+            .expect(401);
+
+        expect(response.text).to.eql('invalid token');
+
     });
 
     it('should return a 200', () => {

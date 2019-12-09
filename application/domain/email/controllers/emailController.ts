@@ -7,7 +7,6 @@ export class EmailController extends CrudController {
 
     constructor() {
         super("emailType/:parentId/email", new EmailRepository());
-        this.authProvider = new JwtAuth();
     }
 
     onStoreValidationSchema = emailSchema;
