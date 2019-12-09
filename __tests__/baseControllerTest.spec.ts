@@ -37,11 +37,11 @@ describe('Base Controller Tests', () => {
 
         const response = await request(app)
             .post("/email/1/special")
-            .send({name: 'henrik'})
+            .send({
+                data: 'hello',
+                html: '<html>'
+            })
             .expect(200);
-
-        const data = JSON.parse(response.text);
-        expect(data[0].message).to.eql('"data" is required');
     });
 });
 

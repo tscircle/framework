@@ -5,7 +5,6 @@ import {database} from "../database/database";
 import {EmailTypeRepository} from "../application/domain/email/repositories/emailTypeRepository";
 import {EmailController} from "../application/domain/email/controllers/emailController";
 
-chai.use(require('chai-things'));
 
 describe('Crud Controller Tests', () => {
     let parenId;
@@ -55,8 +54,12 @@ describe('Crud Controller Tests', () => {
 
         const data = JSON.parse(response.text);
 
-        expect(data).to.include.something.that.property('name', 'mocha');
-        expect(data).to.include.something.that.property('id', entryId);
+        const count = data.filter((item) => {
+            return item.name === 'mocha' &&
+                item.id === entryId;
+        }).length;
+
+        expect(count).to.equals(1);
     });
 
     it('should update the created entry', async () => {
