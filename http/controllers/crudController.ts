@@ -29,6 +29,12 @@ export class CrudController extends BaseController {
         this.route = route;
     }
 
+    public setupRestHandler() {
+        this.setupAPIHandler();
+
+        return serverless(app);
+    }
+
     public setupAPIHandler() {
         const {route} = this;
 
