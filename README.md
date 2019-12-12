@@ -5,6 +5,7 @@ This repository contains the core code of the tscircle framework.
 [![CircleCI](https://circleci.com/gh/tscircle/framework.svg?style=svg)](https://circleci.com/gh/tscircle/framework)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=tscircle_framework&metric=alert_status)](https://sonarcloud.io/dashboard?id=tscircle_framework)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=tscircle_framework&metric=coverage)](https://sonarcloud.io/dashboard?id=tscircle_framework)
+[![Known Vulnerabilities](https://snyk.io/test/github/tscircle/framework/badge.svg?targetFile=package.json)](https://snyk.io/test/github/tscircle/framework?targetFile=package.json)
 
 ## local development 
 ```
