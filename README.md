@@ -1,5 +1,6 @@
 # tscircle/framework 
 This repository contains the core code of the tscircle framework.
+[Here](https://github.com/tscircle/boilerplate) is boilerplate to run this framework. 
 
 [![CircleCI](https://circleci.com/gh/tscircle/framework.svg?style=svg)](https://circleci.com/gh/tscircle/framework)
 
@@ -40,7 +41,7 @@ In the local development environment, the local ./storage folder is used and in 
 
 
 ```
-import {Storage} from '../../framework/storage/storage';
+import {Storage} from '@tscricle/framework/storage/storage';
 
 Storage.put('message.txt', 'Hello Node');
 
@@ -51,7 +52,7 @@ Storage.get('message.txt').then((content)=> {console.log(content.toString())});
 The docker container amazon/dynamodb-local is used locally. In an AWS environment the generated DynamoDB table is used.
 
 ```
-import {Cache} from '../../framework/cache/cache';
+import {Cache} from '@tscricle/framework/cache/cache';
 
 const ttlInSeconds = 60;
 
@@ -62,18 +63,54 @@ Cachce.remember('cache-key', ttlInSeconds, () => { return 'cache-valuee'});
 The docker container vsouza/sqs-local is used locally. In an AWS environment the generated SQS queue together with a dead letter queue is used.
 
 ```
-import {Queue} from "../../framework/queue/queue";
+import {Queue} from "@tscricle/framework/queue/queue";
 import {myJOb} from "../application/jobs/myJob";
 
 return Queue.dispatch((new myJOb({email: 'test'})));
 ```
-TODO create a failed_jobs table and use it as dead letter queue
+TODO improve tests
 
+## Base Controller
+The base controller automatically calls the handler method.
+
+```
+functions:
+  userRestEndpoint:
+    handler: application/domain/user/controllers/userDownloadController.restHandler
+    events:
+    - http:
+        path: /users/download
+        method: GET
+```
+
+```
+import {BaseController} from '@tscricle/framework/http/controllers/baseController';
+export class UserController extends BaseController {
+    constructor() {
+        super('post', 'email/:parentId/special');
+    }
+```
+
+```
+public handler = async (req): Promise<Object> => {
+    return {
+        hello: 'from EmailSpecialController'
+    };
+};
+```
+
+
+Validation can be done like this:
+```
+validationSchema = Joi.object().keys({
+   name: Joi.string().alphanum().min(3).max(30).required(),
+});
+}
+```
 
 ## CRUD Controller
 The crud controller automatically performs crud operations on the provided model.
 
-serverless.yml:
 ```
 functions:
   userRestEndpoint:
@@ -87,8 +124,9 @@ functions:
         method: ANY
 ```
 
-application/domain/users/controllers/userController.ts:
+
 ```
+import {CrudController} from '@tscricle/framework/http/controllers/crudController';
 export class UserController extends CrudController {
     constructor() {
         super("users", User);
@@ -96,7 +134,7 @@ export class UserController extends CrudController {
 ```
 
 By default the following routes will be created:
-framework/http/controllers/crudController.ts@setupAPIHandler:
+@tscricle/framework/http/controllers/crudController.ts@setupAPIHandler:
 ```
 app.get(`/${route}/`, this.index);
 app.get(`/${route}/:id`, this.show);
@@ -107,7 +145,6 @@ app.delete(`/${route}/:id`, this.remove);
 
 
 Validation can be done like this:
-application/domain/users/controllers/userController.ts:
 ```
 onStoreValidationSchema = userSchema;
 onUpdateValidationSchema = editUserSchema;
