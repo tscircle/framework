@@ -3,6 +3,7 @@ exports.up = function(knex, Promise) {
         t.increments('id').unsigned().primary();
 
         t.text('currentState').notNullable();
+        t.text('filename').notNullable();
 
         t.timestamps(false, true);
     });
