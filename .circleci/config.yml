@@ -12,7 +12,6 @@ jobs:
         name: NPM install
         command: |
           npm install
-    - sonarcloud/scan
     - persist_to_workspace:
         root: .
         paths: .
@@ -49,7 +48,8 @@ jobs:
     - run:
         name: Run tests
         command: |
-          npm run test
+          npm run test-coverage
+    - sonarcloud/scan
 
   publish:
     working_directory: ~/sls
