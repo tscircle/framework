@@ -1,12 +1,13 @@
 {
   "name": "@tscircle/framework",
-  "version": "0.0.28-11",
+  "version": "0.0.28-17",
   "description": "This package contains the core code of the tscircle framework.",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "index.d.ts",
   "scripts": {
     "test": "mocha -r ts-node/register **/*.spec.ts --exit",
+    "test-coverage": "nyc mocha --opts ./__tests__/mocha-coverage.opts",
     "migrate:latest": "node node_modules/knex/bin/cli.js --cwd --knexfile knexfile.ts migrate:latest",
     "migrate:rollback": "node node_modules/knex/bin/cli.js --cwd --knexfile knexfile.ts migrate:rollback",
     "migrate:make": "node node_modules/knex/bin/cli.js --cwd --knexfile knexfile.ts migrate:make",
@@ -42,6 +43,8 @@
     "@types/formidable": "^1.0.31",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
+    "nyc": "^14.1.1",
+    "source-map-support": "^0.5.16",
     "supertest": "^4.0.2",
     "ts-node": "^8.5.4",
     "tsconfig-paths": "^3.9.0"

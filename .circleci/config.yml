@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 jobs:
   build:
     working_directory: ~/sls
@@ -48,7 +48,8 @@ jobs:
     - run:
         name: Run tests
         command: |
-          npm run test
+          npm run test-coverage
+    - sonarcloud/scan
 
   publish:
     working_directory: ~/sls
@@ -86,6 +87,9 @@ jobs:
           cd dist
           npm publish
 
+orbs:
+  sonarcloud: sonarsource/sonarcloud@1.0.1
+
 workflows:
   version: 2
   build-and-deploy:
@@ -101,4 +105,6 @@ workflows:
             - master
         requires:
         - test
+
+
 
