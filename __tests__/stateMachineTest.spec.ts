@@ -46,6 +46,21 @@ describe('State Machine tests', () => {
         expect(sm2.getStatus().value).to.be.equals('start');
     });
 
+    it('should perform a transition and reload the state machine instance from the db', async () => {
+        let sm1 = new processStateMachine();
+        await sm1.create({
+            amount: 1000,
+            type: 'prepay',
+        });
+
+        await sm1.transition('NEXT');
+
+        let sm2 = new processStateMachine();
+        await sm2.load(sm1.getId());
+
+        expect(sm2.getStatus().value).to.be.equals('waiting');
+    });
+
     it('should perform a state machine transition', async () => {
         let sm1 = new processStateMachine();
         await sm1.create({
