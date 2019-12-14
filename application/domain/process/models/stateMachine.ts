@@ -2,7 +2,7 @@ import {BaseModel} from "../../../../model/baseModel";
 
 export interface StateMachineModelInterface {
     id: number;
-    currentState: string;
+    state: string;
 }
 
 export class StateMachineModel extends BaseModel {

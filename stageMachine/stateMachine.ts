@@ -8,56 +8,73 @@ export default abstract class stateMachine {
     protected id: number;
     protected sm;
     protected smInstance;
+    protected state;
 
 
-    public async create(context: Object): Promise<number> {
+    public async create(context: Object): Promise<any> {
         this.sm = Machine(this.config);
         this.smInstance = this.sm.withContext(context);
+        this.state = this.smInstance.initialState;
+
         const model = await this.smRepository.add({
-            state: JSON.stringify(this.smInstance),
+            state: JSON.stringify(this.state),
             filename: __filename
         });
+
         this.id = model.id;
 
-        return this.id;
+        await this.smHistoryRepository.add({
+            state: JSON.stringify(this.state)
+        }, this.id)
     };
 
-    public async getStatus() {
+    public getId() {
         if (!this.smInstance) {
             throw new Error('No state machine instance found');
         }
 
-        return this.smInstance.status;
+        return this.id;
+    }
+
+    public getStatus() {
+        if (!this.smInstance) {
+            throw new Error('No state machine instance found');
+        }
+
+        return this.state;
     }
 
     public async load(id: number) {
-        const data = await this.smRepository.get(this.id);
+        this.sm = Machine(this.config);
+        const data = await this.smRepository.get(id);
 
         if (data.filename !== __filename) {
             throw new Error('State machine does not belong to file');
         }
 
-        const previousState = State.create(data.currentState);
+        this.state = State.create(JSON.parse(data.state));
 
-        this.smInstance = this.sm.resolveState(previousState);
+        this.smInstance = this.sm.resolveState(this.state);
         this.id = id;
     };
 
-    public async send(event: string, options?: Object) {
+    public async transition(event: string) {
         if (!this.smInstance) {
             throw new Error('No state machine instance found');
         }
 
-        this.sm.smInstance.send(event, options);
+        this.state = this.smInstance.transition(this.state, event);
 
         await this.store();
     };
 
     protected async store() {
-        await this.smRepository.edit(this.id, {state: JSON.stringify(this.smInstance)});
         await this.smHistoryRepository.add({
-            state: JSON.stringify(this.smInstance)
+            state: JSON.stringify(this.state)
         }, this.id);
-        console.log(this.smInstance);
+
+        await this.smRepository.edit(this.id, {
+            state: JSON.stringify(this.state)
+        });
     };
 }
