@@ -2,8 +2,8 @@ import 'mocha';
 import {expect} from "chai";
 import {database} from "../database/database";
 import {processStateMachine} from "../application/domain/process/stateMachine/processStateMachine";
-import {StateMachineHistoryRepository} from "../application/domain/process/repositories/stateMachineHistory";
-import {StateMachineRepository} from '../application/domain/process/repositories/stateMachine';
+import {StateMachineHistoryRepository} from "../stageMachine/repositories/stateMachineHistoryRepository";
+import {StateMachineRepository} from "../stageMachine/repositories/stateMachineRepository";
 
 
 describe('State Machine tests', () => {

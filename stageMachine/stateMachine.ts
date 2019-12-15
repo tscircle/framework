@@ -1,10 +1,11 @@
 import {MachineConfig, Machine, State} from 'xstate';
-import {BaseRepository} from "../repository/baseRepository";
+import {StateMachineRepository} from "./repositories/stateMachineRepository";
+import {StateMachineHistoryRepository} from "./repositories/stateMachineHistoryRepository";
 
 export default abstract class stateMachine {
-    protected abstract smRepository: BaseRepository;
-    protected abstract smHistoryRepository: BaseRepository;
     protected abstract config: MachineConfig<any, any, any>;
+    protected smRepository: StateMachineRepository = new StateMachineRepository();
+    protected smHistoryRepository: StateMachineHistoryRepository = new StateMachineHistoryRepository();
     protected id: number;
     protected sm;
     protected smInstance;
@@ -16,19 +17,10 @@ export default abstract class stateMachine {
         this.smInstance = this.sm.withContext(context);
         this.state = this.smInstance.initialState;
 
-        const model = await this.smRepository.add({
-            filename: __filename,
-            state: this.state.value,
-            done: this.state.done,
-            state_object: JSON.stringify(this.state)
-        });
+        const model = await this.smRepository.addMachine(__filename, this.state);
+        await this.smHistoryRepository.addMachineHistory(model.id, this.state);
 
         this.id = model.id;
-
-        await this.smHistoryRepository.add({
-            state: this.state.value,
-            state_object: JSON.stringify(this.state)
-        }, this.id)
     };
 
     public getId() {
@@ -72,15 +64,7 @@ export default abstract class stateMachine {
     };
 
     protected async store() {
-        await this.smRepository.edit(this.id, {
-            state: this.state.value,
-            done: this.state.done,
-            state_object: JSON.stringify(this.state)
-        });
-
-        await this.smHistoryRepository.add({
-            state: this.state.value,
-            state_object: JSON.stringify(this.state)
-        }, this.id);
+        await this.smRepository.editStateMachine(this.id, this.state);
+        await this.smHistoryRepository.addMachineHistory(this.id, this.state);
     };
 }

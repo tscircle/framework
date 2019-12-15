@@ -1,4 +1,4 @@
-import {BaseModel} from "../../../../model/baseModel";
+import {BaseModel} from "../../model/baseModel";
 
 export interface StateMachineModelInterface {
     id: number;
