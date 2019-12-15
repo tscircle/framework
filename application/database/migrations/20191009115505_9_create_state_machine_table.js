@@ -4,6 +4,7 @@ exports.up = function(knex, Promise) {
 
         t.text('filename').notNullable();
         t.string('state').notNullable();
+        t.boolean('done').default(false);
         t.text('state_object').notNullable();
 
         t.timestamps(false, true);

@@ -19,6 +19,7 @@ export default abstract class stateMachine {
         const model = await this.smRepository.add({
             filename: __filename,
             state: this.state.value,
+            done: this.state.done,
             state_object: JSON.stringify(this.state)
         });
 
@@ -71,14 +72,15 @@ export default abstract class stateMachine {
     };
 
     protected async store() {
+        await this.smRepository.edit(this.id, {
+            state: this.state.value,
+            done: this.state.done,
+            state_object: JSON.stringify(this.state)
+        });
+
         await this.smHistoryRepository.add({
             state: this.state.value,
             state_object: JSON.stringify(this.state)
         }, this.id);
-
-        await this.smRepository.edit(this.id, {
-            state: this.state.value,
-            state_object: JSON.stringify(this.state)
-        });
     };
 }

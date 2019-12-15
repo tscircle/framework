@@ -34,6 +34,22 @@ describe('State Machine tests', () => {
         expect(historyEntry.state).to.be.equals('start');
     });
 
+    it('should see state machine state in history db table is marked as done', async () => {
+        let sm1 = new processStateMachine();
+        await sm1.create({
+            amount: 1000,
+            type: 'prepay',
+        });
+
+        await sm1.transition('NEXT');
+        await sm1.transition('NEXT');
+        await sm1.transition('NEXT');
+
+        const repo = new StateMachineRepository();
+        const historyEntry = await repo.model.q().where('id', sm1.getId()).first();
+        expect(historyEntry.done).to.be.equals(1);
+    });
+
     it('should reload the state machine instance from the db', async () => {
         let sm1 = new processStateMachine();
         await sm1.create({
@@ -87,6 +103,7 @@ describe('State Machine tests', () => {
         const historyEntry = await repo.model.q().where('id', sm1.getId()).first();
         expect(JSON.parse(historyEntry.state_object).value).to.be.equals('waiting');
         expect(historyEntry.state).to.be.equals('waiting');
+        expect(historyEntry.done).to.be.equals(0);
     });
 
     it('should see the state machine transition in state machine history table', async () => {

@@ -40,7 +40,9 @@ export class processStateMachine extends stateMachine {
                     NEXT: 'finished'
                 }
             },
-            finished: {}
+            finished: {
+                type: 'final'
+            }
         }
     };
 }
