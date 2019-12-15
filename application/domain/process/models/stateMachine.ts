@@ -3,6 +3,7 @@ import {BaseModel} from "../../../../model/baseModel";
 export interface StateMachineModelInterface {
     id: number;
     state: string;
+    state_object: string;
 }
 
 export class StateMachineModel extends BaseModel {

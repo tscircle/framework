@@ -5,7 +5,8 @@ exports.up = function(knex, Promise) {
         t.integer('state_machine_id').unsigned().nullable();
         t.foreign('state_machine_id').references('state_machine.id');
 
-        t.text('state').notNullable();
+        t.string('state').notNullable();
+        t.text('state_object').notNullable();
 
         t.timestamps(false, true);
     });

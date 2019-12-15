@@ -17,14 +17,16 @@ export default abstract class stateMachine {
         this.state = this.smInstance.initialState;
 
         const model = await this.smRepository.add({
-            state: JSON.stringify(this.state),
-            filename: __filename
+            filename: __filename,
+            state: this.state.value,
+            state_object: JSON.stringify(this.state)
         });
 
         this.id = model.id;
 
         await this.smHistoryRepository.add({
-            state: JSON.stringify(this.state)
+            state: this.state.value,
+            state_object: JSON.stringify(this.state)
         }, this.id)
     };
 
@@ -52,7 +54,7 @@ export default abstract class stateMachine {
             throw new Error('State machine does not belong to file');
         }
 
-        this.state = State.create(JSON.parse(data.state));
+        this.state = State.create(JSON.parse(data.state_object));
 
         this.smInstance = this.sm.resolveState(this.state);
         this.id = id;
@@ -70,11 +72,13 @@ export default abstract class stateMachine {
 
     protected async store() {
         await this.smHistoryRepository.add({
-            state: JSON.stringify(this.state)
+            state: this.state.value,
+            state_object: JSON.stringify(this.state)
         }, this.id);
 
         await this.smRepository.edit(this.id, {
-            state: JSON.stringify(this.state)
+            state: this.state.value,
+            state_object: JSON.stringify(this.state)
         });
     };
 }

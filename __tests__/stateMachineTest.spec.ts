@@ -30,7 +30,8 @@ describe('State Machine tests', () => {
 
         const repo = new StateMachineHistoryRepository();
         const historyEntry = await repo.model.q().where('state_machine_id', sm.getId()).first();
-        expect(JSON.parse(historyEntry.state).value).to.be.equals('start');
+        expect(JSON.parse(historyEntry.state_object).value).to.be.equals('start');
+        expect(historyEntry.state).to.be.equals('start');
     });
 
     it('should reload the state machine instance from the db', async () => {
@@ -84,7 +85,8 @@ describe('State Machine tests', () => {
 
         const repo = new StateMachineRepository();
         const historyEntry = await repo.model.q().where('id', sm1.getId()).first();
-        expect(JSON.parse(historyEntry.state).value).to.be.equals('waiting');
+        expect(JSON.parse(historyEntry.state_object).value).to.be.equals('waiting');
+        expect(historyEntry.state).to.be.equals('waiting');
     });
 
     it('should see the state machine transition in state machine history table', async () => {
@@ -100,11 +102,17 @@ describe('State Machine tests', () => {
         const historyEntry = await repo.model.q().where('state_machine_id', sm1.getId());
 
         expect(historyEntry.length).to.be.equals(2);
+
         expect(
-            historyEntry.filter((entry) => {return JSON.parse(entry.state).value === 'start'}).length
+            historyEntry.filter((entry) => {
+                return entry.state === 'start'
+            }).length
         ).to.be.equals(1);
+
         expect(
-            historyEntry.filter((entry) => {return JSON.parse(entry.state).value === 'waiting'}).length
+            historyEntry.filter((entry) => {
+                return entry.state === 'waiting'
+            }).length
         ).to.be.equals(1);
     });
 });

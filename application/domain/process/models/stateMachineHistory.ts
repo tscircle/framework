@@ -4,6 +4,7 @@ export interface StateMachineModeHistoryModelInterface {
     id: number;
     state_machine_id: number;
     state: string;
+    state_object: string;
 }
 
 export class StateMachineModeHistoryModel extends BaseModel {
