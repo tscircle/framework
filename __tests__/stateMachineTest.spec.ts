@@ -18,7 +18,7 @@ describe('State Machine tests', () => {
             type: 'prepay',
         });
 
-        expect(sm.getStatus().value).to.be.equals('start');
+        expect(sm.getStatus()).to.be.equals('start');
     });
 
     it('should see state machine state in history db table', async () => {

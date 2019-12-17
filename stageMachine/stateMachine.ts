@@ -21,7 +21,7 @@ export default abstract class stateMachine {
         await this.smHistoryRepository.addMachineHistory(model.id, this.state);
 
         this.id = model.id;
-    };
+    }
 
     public getId() {
         if (!this.smInstance) {
@@ -31,12 +31,12 @@ export default abstract class stateMachine {
         return this.id;
     }
 
-    public getStatus() {
+    public getStatus(): string {
         if (!this.smInstance) {
             throw new Error('No state machine instance found');
         }
 
-        return this.state;
+        return this.state.value;
     }
 
     public async load(id: number) {
@@ -51,7 +51,7 @@ export default abstract class stateMachine {
 
         this.smInstance = this.sm.resolveState(this.state);
         this.id = id;
-    };
+    }
 
     public async transition(event: string) {
         if (!this.smInstance) {
@@ -61,10 +61,10 @@ export default abstract class stateMachine {
         this.state = this.smInstance.transition(this.state, event);
 
         await this.store();
-    };
+    }
 
     protected async store() {
         await this.smRepository.editStateMachine(this.id, this.state);
         await this.smHistoryRepository.addMachineHistory(this.id, this.state);
-    };
+    }
 }
