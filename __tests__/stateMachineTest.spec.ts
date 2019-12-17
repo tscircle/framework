@@ -18,7 +18,7 @@ describe('State Machine tests', () => {
             type: 'prepay',
         });
 
-        expect(sm.getStatus().value).to.be.equals('start');
+        expect(sm.getStatus()).to.be.equals('start');
     });
 
     it('should see state machine state in history db table', async () => {
@@ -60,7 +60,7 @@ describe('State Machine tests', () => {
         let sm2 = new processStateMachine();
         await sm2.load(sm1.getId());
 
-        expect(sm2.getStatus().value).to.be.equals('start');
+        expect(sm2.getStatus()).to.be.equals('start');
     });
 
     it('should perform a transition and reload the state machine instance from the db', async () => {
@@ -75,7 +75,7 @@ describe('State Machine tests', () => {
         let sm2 = new processStateMachine();
         await sm2.load(sm1.getId());
 
-        expect(sm2.getStatus().value).to.be.equals('waiting');
+        expect(sm2.getStatus()).to.be.equals('waiting');
     });
 
     it('should perform a state machine transition', async () => {
@@ -87,7 +87,7 @@ describe('State Machine tests', () => {
 
         await sm1.transition('NEXT');
 
-        expect(sm1.getStatus().value).to.be.equals('waiting');
+        expect(sm1.getStatus()).to.be.equals('waiting');
     });
 
     it('should see the state machine transition in state machine table', async () => {
