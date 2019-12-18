@@ -72,7 +72,15 @@ return Queue.dispatch((new myJOb({email: 'test'})));
 ```
 TODO improve tests
 
+## BaseModel
+https://github.com/tscircle/framework/blob/master/model/baseModel.ts
+
+## BaseRepository
+https://github.com/tscircle/framework/blob/master/repository/baseRepository.ts
+
 ## Base Controller
+https://github.com/tscircle/framework/blob/master/http/controllers/baseController.ts
+
 The base controller automatically calls the handler method.
 
 ```
@@ -100,6 +108,11 @@ public handler = async (req): Promise<Object> => {
     };
 };
 ```
+To read a file from a post form request, the getFile method can simply be called in a controller.
+```
+const file = await this.getFile(req);
+};
+```
 
 
 Validation can be done like this:
@@ -111,6 +124,7 @@ validationSchema = Joi.object().keys({
 ```
 
 ## CRUD Controller
+https://github.com/tscircle/framework/blob/master/http/controllers/crudController.ts
 The crud controller automatically performs crud operations on the provided model.
 
 ```
@@ -136,7 +150,6 @@ export class UserController extends CrudController {
 ```
 
 By default the following routes will be created:
-@tscricle/framework/http/controllers/crudController.ts@setupAPIHandler:
 ```
 app.get(`/${route}/`, this.index);
 app.get(`/${route}/:id`, this.show);
