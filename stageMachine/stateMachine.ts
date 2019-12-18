@@ -17,7 +17,7 @@ export default abstract class stateMachine {
         this.smInstance = this.sm.withContext(context);
         this.state = this.smInstance.initialState;
 
-        const model = await this.smRepository.addMachine(__filename, this.state);
+        const model = await this.smRepository.addMachine(this.constructor.name, this.state);
         await this.smHistoryRepository.addMachineHistory(model.id, this.state);
 
         this.id = model.id;
@@ -43,8 +43,8 @@ export default abstract class stateMachine {
         this.sm = Machine(this.config);
         const data = await this.smRepository.get(id);
 
-        if (data.filename !== __filename) {
-            throw new Error('State machine does not belong to file');
+        if (data.filename !== this.constructor.name) {
+            throw new Error('State machine does not belong to class');
         }
 
         this.state = State.create(JSON.parse(data.state_object));

@@ -4,6 +4,7 @@ import {database} from "../database/database";
 import {processStateMachine} from "../application/domain/process/stateMachine/processStateMachine";
 import {StateMachineHistoryRepository} from "../stageMachine/repositories/stateMachineHistoryRepository";
 import {StateMachineRepository} from "../stageMachine/repositories/stateMachineRepository";
+import {processStateMachine2} from "../application/domain/process/stateMachine/processStateMachine2";
 
 
 describe('State Machine tests', () => {
@@ -131,5 +132,64 @@ describe('State Machine tests', () => {
                 return entry.state === 'waiting'
             }).length
         ).to.be.equals(1);
+    });
+
+    it('should throw an error if transition is called on a non created/loaded state machine', async () => {
+        let sm = new processStateMachine();
+        let error;
+
+        try {
+            await sm.transition('NEXT');
+        } catch (e) {
+            error = e.message;
+        }
+
+        expect(error).to.be.equals('No state machine instance found');
+    });
+
+    it('should throw an error if getId is called on a non created/loaded state machine', async () => {
+        let sm = new processStateMachine();
+        let error;
+
+        try {
+            await sm.getId();
+        } catch (e) {
+            error = e.message;
+        }
+
+        expect(error).to.be.equals('No state machine instance found');
+    });
+
+    it('should throw an error if getStatus is called on a non created/loaded state machine', async () => {
+        let sm = new processStateMachine();
+        let error;
+
+        try {
+            await sm.getStatus();
+        } catch (e) {
+            error = e.message;
+        }
+
+        expect(error).to.be.equals('No state machine instance found');
+    });
+
+    it('should throw an error if a state machine id is loaded into a wrong state machine', async () => {
+        let sm1 = new processStateMachine();
+        let sm2 = new processStateMachine2();
+
+        await sm1.create({
+            amount: 1000,
+            type: 'prepay',
+        });
+
+        let error;
+
+        try {
+            await sm2.load(sm1.getId());
+        } catch (e) {
+            error = e.message;
+        }
+
+        expect(error).to.be.equals('State machine does not belong to class');
     });
 });
