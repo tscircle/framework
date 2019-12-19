@@ -1,5 +1,5 @@
-import stateMachine from '../../../../stageMachine/stateMachine';
-import {MachineConfig} from "xstate";
+import stateMachine from '../../../../stateMachine/stateMachine';
+import { MachineConfig } from "xstate";
 
 export interface ProcessContext {
     amount: number;
@@ -11,6 +11,8 @@ export class processStateMachine2 extends stateMachine {
     public async create(context: ProcessContext) {
         return super.create(context);
     }
+
+    protected options: any;
 
     protected config: MachineConfig<ProcessContext, any, any> = {
         id: 'quiet',
