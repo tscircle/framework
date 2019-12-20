@@ -166,4 +166,90 @@ onUpdateValidationSchema = editUserSchema;
 }
 ```
 
+## State Machine
+There is an abstract state machine that can be easily implemented. 
+The state machine is automatically persisted and rehydrated by the database.
+This State Machine libraray is used: https://xstate.js.org/
+Here you can find the abstract state machine:
+https://github.com/tscircle/framework/blob/master/stateMachine/stateMachine.ts
 
+Database: 
+When creating an instance and executing a transition, the entry in the database is automatically changed. 
+There are two tables: state_machine records the current state of all state machine instances. 
+The table state_machine_history contains every change to a state machine.
+
+To use own tables smRepository and smHistoryRepository can be overwritten in the implementation with own repositories.
+```
+protected smRepository: StateMachineRepository = new StateMachineRepository();
+protected smHistoryRepository: StateMachineHistoryRepository = new StateMachineHistoryRepository();
+```
+
+Here is an example implementation:
+```
+export interface ProcessContext {
+    amount: number;
+    type: string;
+}
+
+export class processStateMachine extends stateMachine {
+
+    public async create(context: ProcessContext) {
+        return super.create(context);
+    }
+
+    protected config: MachineConfig<ProcessContext, any, any> = {
+        id: 'quiet',
+        initial: 'start',
+        context: {
+            amount: 0,
+            type: ' yeah'
+        },
+        states: {
+            start: {
+                on: {
+                    NEXT: 'waiting'
+                }
+            },
+            waiting: {
+                on: {
+                    NEXT: 'paid'
+                }
+            },
+            paid: {
+                on: {
+                    NEXT: 'finished'
+                }
+            },
+            finished: {
+                type: 'final'
+            }
+        }
+    };
+}
+```
+
+To create a new State Machine instance:
+```
+let sm = new processStateMachine();
+await sm.create({
+    amount: 1000,
+    type: 'prepay',
+});
+```
+or to rehydrate the State Machine instance with the ID 12 from the database:
+```
+let sm = new processStateMachine();
+await sm.load(12);
+```
+The following call returns the instance ID:
+```
+await sm.getId();
+```
+To query the status object of an instance:
+```
+await sm.getStatus();
+```
+To execute a transition of the instance:
+```
+await sm.transition('NEXT');
+```
