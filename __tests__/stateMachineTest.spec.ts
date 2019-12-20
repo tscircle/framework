@@ -1,10 +1,11 @@
 import 'mocha';
-import {expect} from "chai";
-import {database} from "../database/database";
-import {processStateMachine} from "../application/domain/process/stateMachine/processStateMachine";
-import {StateMachineHistoryRepository} from "../stageMachine/repositories/stateMachineHistoryRepository";
-import {StateMachineRepository} from "../stageMachine/repositories/stateMachineRepository";
-import {processStateMachine2} from "../application/domain/process/stateMachine/processStateMachine2";
+import { expect } from "chai";
+import { database } from "../database/database";
+import { processStateMachine } from "../application/domain/process/stateMachine/processStateMachine";
+import { StateMachineHistoryRepository } from "../stateMachine/repositories/stateMachineHistoryRepository";
+import { StateMachineRepository } from "../stateMachine/repositories/stateMachineRepository";
+import { processStateMachine2 } from "../application/domain/process/stateMachine/processStateMachine2";
+import { processStateMachine3 } from "../application/domain/process/stateMachine/processStateMachine3";
 
 
 describe('State Machine tests', () => {
@@ -191,5 +192,21 @@ describe('State Machine tests', () => {
         }
 
         expect(error).to.be.equals('State machine does not belong to class');
+    });
+
+    it('should send transition through service and subscribe state change', async () => {
+        let sm = new processStateMachine3({
+            amount: 1000,
+            type: 'debit',
+        });
+
+        let result
+
+        sm.service.send('NEXT');
+        sm.service.onTransition((state) => {
+            result = state.value;
+        })
+
+        expect(result).to.be.equals('paid');
     });
 });

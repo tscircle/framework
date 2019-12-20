@@ -1,21 +1,27 @@
-import {MachineConfig, Machine, State} from 'xstate';
-import {StateMachineRepository} from "./repositories/stateMachineRepository";
-import {StateMachineHistoryRepository} from "./repositories/stateMachineHistoryRepository";
+import { MachineConfig, MachineOptions, Machine, State, interpret, Interpreter, StateValue } from 'xstate';
+import { StateMachineRepository } from "./repositories/stateMachineRepository";
+import { StateMachineHistoryRepository } from "./repositories/stateMachineHistoryRepository";
 
 export default abstract class stateMachine {
     protected abstract config: MachineConfig<any, any, any>;
+    protected abstract options: MachineOptions<any, any>;
     protected smRepository: StateMachineRepository = new StateMachineRepository();
     protected smHistoryRepository: StateMachineHistoryRepository = new StateMachineHistoryRepository();
     protected id: number;
     protected sm;
     protected smInstance;
-    protected state;
-
+    public state: State<any>;
+    public service: Interpreter<any>;
 
     public async create(context: Object): Promise<any> {
-        this.sm = Machine(this.config);
+        this.sm = Machine(this.config, this.options);
         this.smInstance = this.sm.withContext(context);
         this.state = this.smInstance.initialState;
+
+        this.service = interpret(this.sm).start(this.state).onTransition(async (state) => {
+            this.state = state;
+            await this.store().catch((err) => err)
+        })
 
         const model = await this.smRepository.addMachine(this.constructor.name, this.state);
         await this.smHistoryRepository.addMachineHistory(model.id, this.state);
@@ -31,7 +37,7 @@ export default abstract class stateMachine {
         return this.id;
     }
 
-    public getStatus(): string {
+    public getStatus(): StateValue {
         if (!this.smInstance) {
             throw new Error('No state machine instance found');
         }
@@ -48,8 +54,13 @@ export default abstract class stateMachine {
         }
 
         this.state = State.create(JSON.parse(data.state_object));
-
         this.smInstance = this.sm.resolveState(this.state);
+
+        this.service = interpret(this.sm).start(this.state).onTransition(async (state) => {
+            this.state = state;
+            await this.store().catch((err) => err)
+        })
+
         this.id = id;
     }
 
