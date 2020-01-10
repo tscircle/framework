@@ -78,6 +78,7 @@ jobs:
           npm version prerelease -m "Bumped version number to %s [ci skip]"
           git push origin master
           git push --tags
+          cp --parents **/*.ts ./dist
           cp package.json ./dist/
           cp README.md ./dist/
 
