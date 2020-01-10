@@ -12,7 +12,8 @@
     "migrate:rollback": "node node_modules/knex/bin/cli.js --cwd --knexfile knexfile.ts migrate:rollback",
     "migrate:make": "node node_modules/knex/bin/cli.js --cwd --knexfile knexfile.ts migrate:make",
     "build": "tsc",
-    "publish:patch": "tsc && npm version patch && cp package.json /dist && cd dist && npm publish"
+    "publish:patch": "tsc && npm version patch && cp package.json /dist && cd dist && npm publish",
+    "postbuild": "copyfiles -e \"node_modules\" -a  \"./**/*.ts\" dist"
   },
   "repository": {},
   "author": "",
@@ -42,6 +43,7 @@
     "@types/formidable": "^1.0.31",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
+    "copyfiles": "^2.1.1",
     "nyc": "^14.1.1",
     "source-map-support": "^0.5.16",
     "supertest": "^4.0.2",
