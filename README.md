@@ -95,32 +95,33 @@ functions:
 
 ```
 import {BaseController} from '@tscricle/framework/http/controllers/baseController';
-export class UserController extends BaseController {
+export class EmailSpecialController extends BaseController {
+
     constructor() {
-        super('post', 'email/:parentId/special');
+        super('get', 'email/:parentId/special');
     }
+
+    public handler = async (req): Promise<Object> => {
+        return {
+            hello: 'from EmailSpecialController'
+        };
+    };
+}
+
+exports.restHandler = new EmailSpecialController().setupRestHandler();
 ```
 
-```
-public handler = async (req): Promise<Object> => {
-    return {
-        hello: 'from EmailSpecialController'
-    };
-};
-```
 To read a file from a post form request, the getFile method can simply be called in a controller.
 ```
 const file = await this.getFile(req);
 };
 ```
 
-
 Validation can be done like this:
 ```
 validationSchema = Joi.object().keys({
    name: Joi.string().alphanum().min(3).max(30).required(),
 });
-}
 ```
 
 ## CRUD Controller
