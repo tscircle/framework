@@ -10,7 +10,8 @@
     "importHelpers": true,
     "rootDir": "./",
     "skipLibCheck" : true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "esModuleInterop": true
   },
   "exclude": [
     "node_modules",

@@ -4,7 +4,7 @@ import {BaseController} from '../../../../http/controllers/baseController';
 export class EmailSpecialController extends BaseController {
 
     constructor() {
-        super('get', 'email/:parentId/special');
+        super('email/:parentId/special');
     }
 
     public handler = async (req): Promise<Object> => {

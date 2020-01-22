@@ -1,4 +1,4 @@
-import * as Knex from 'knex'
+import Knex from 'knex'
 
 import getConfig from "../config/config";
 const config = getConfig('db');

@@ -5,7 +5,7 @@ import {emailContentSchema} from "../schemas/emailContentSchema";
 export class EmailSpecialPostController extends BaseController {
 
     constructor() {
-        super('post', 'email/:parentId/special');
+        super('email/:parentId/special');
     }
 
     validationSchema = emailContentSchema;
