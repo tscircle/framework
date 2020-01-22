@@ -13,7 +13,8 @@
     "migrate:make": "node node_modules/knex/bin/cli.js --cwd --knexfile knexfile.ts migrate:make",
     "build": "tsc",
     "publish:patch": "tsc && npm version patch && cp package.json /dist && cd dist && npm publish",
-    "postbuild": "copyfiles -e \"node_modules\" -a  \"./**/*.ts\" dist"
+    "prebuild": "rimraf dist",
+    "postbuild": "copyfiles -e \"./node_modules/**/*\" \"./**/*.ts\" ./dist"
   },
   "repository": {},
   "author": "",
