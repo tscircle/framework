@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import 'mocha';
 import {EmailTypeController} from "../application/domain/email/controllers/emailTypeController";
-import * as request from 'supertest';
+import request from 'supertest';
 
 describe('Controller Auth tests', () => {
     it('should return a 401 error', async () => {

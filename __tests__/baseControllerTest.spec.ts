@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import 'mocha';
-import * as request from 'supertest';
+import request from 'supertest';
 import {EmailSpecialController} from "../application/domain/email/controllers/emailSpecialController";
 import {EmailSpecialPostController} from "../application/domain/email/controllers/emailSpecialPostController";
 
@@ -8,7 +8,7 @@ import {EmailSpecialPostController} from "../application/domain/email/controller
 describe('Base Controller Tests', () => {
     it('should respond a predefined response', async () => {
         const ctr = new EmailSpecialController();
-        const app = ctr.setupAPIHandler();
+        const app = ctr.setupRestHandler();
 
         const response = await request(app)
             .get("/email/1/special")
@@ -21,7 +21,7 @@ describe('Base Controller Tests', () => {
 
     it('should respond a validation error message', async () => {
         const ctr = new EmailSpecialPostController();
-        const app = ctr.setupAPIHandler();
+        const app = ctr.setupRestHandler();
 
         const response = await request(app)
             .post("/email/1/special")
@@ -33,7 +33,7 @@ describe('Base Controller Tests', () => {
 
     it('should respond a successful response', async () => {
         const ctr = new EmailSpecialPostController();
-        const app = ctr.setupAPIHandler();
+        const app = ctr.setupRestHandler();
 
         const response = await request(app)
             .post("/email/1/special")

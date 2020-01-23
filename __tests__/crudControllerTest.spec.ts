@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import 'mocha';
-import * as request from 'supertest';
+import request from 'supertest';
 import {database} from "../database/database";
 import {EmailTypeRepository} from "../application/domain/email/repositories/emailTypeRepository";
 import {EmailController} from "../application/domain/email/controllers/emailController";
