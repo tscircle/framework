@@ -3,7 +3,8 @@ import {BaseController} from "./baseController";
 import {BaseRepository} from "../../repository/baseRepository";
 import {APIGatewayEvent, APIGatewayProxyResult, Context} from "aws-lambda";
 import middy from "middy";
-import { jsonBodyParser } from "middy/middlewares";
+import { jsonBodyParser, httpErrorHandler } from "middy/middlewares";
+import createError, { HttpError } from "http-errors";
 
 export class CrudController extends BaseController {
     route: string;
@@ -34,18 +35,12 @@ export class CrudController extends BaseController {
                 return handlers[httpMethod]();
             }
         
-            const response = {
-                statusCode: 405,
-                body: JSON.stringify({
-                    message: `Invalid HTTP Method: ${httpMethod}`
-                }),
-            };
-        
-            return Promise.resolve(response);
+            throw new createError.MethodNotAllowed();
         }
          
         return middy(restHandler)
-            .use(jsonBodyParser());
+            .use(jsonBodyParser())
+            .use(httpErrorHandler());
     }
 
     public setupAPIHandler() {
@@ -61,49 +56,38 @@ export class CrudController extends BaseController {
         }
     }
 
-    public index = async () => {
-        return this.prerequisites(this.event).then(async () => {
+    public index = async (): Promise<APIGatewayProxyResult> => {
+        try {
+            await this.prerequisites(this.event);
             const parentId: any = this.event.pathParameters && this.event.pathParameters.parentId;
             const searchQuery = this.event.queryStringParameters && this.event.queryStringParameters.searchQuery;
             const searchColumn = this.event.queryStringParameters && this.event.queryStringParameters.searchColumn;
-            const response = await this.essence.getAll(searchQuery, searchColumn, parentId);
+            const response = await this.essence.getAll(searchQuery, searchColumn, parentId, this.event);
 
-            return {
-                statusCode: 200,
-                body: JSON.stringify(response)
-            };
-        }).catch((error) => {
-            //TODO HANDLER HTTP ERRORS
-            return {
-                statusCode: 500,
-                body: error.error
-            };
-        });
+            return this.handleResponse(200, response);
+        } catch(error) {
+            this.handleError(error);
+        }
     };
 
-    public show = async () => {
-        return this.prerequisites(this.event).then(async () => {
+    public show = async (): Promise<APIGatewayProxyResult> => {
+        try {
+            await this.prerequisites(this.event);
             const { id, parentId } = this.event.pathParameters
 
             this.validate({id: id}, idSchema);
 
             const response = await this.essence.get(parseInt(id), parseInt(parentId), this.event);
 
-            return {
-                statusCode: 200,
-                body: JSON.stringify(response)
-            };
-        }).catch((error) => {
-            //TODO HANDLER HTTP ERRORS
-            return {
-                statusCode: 500,
-                body: error.error
-            };
-        });
+            return this.handleResponse(200, response);
+        } catch(error) {
+            this.handleError(error);
+        }
     };
 
-    public store = async () => {
-        return this.prerequisites(this.event).then(async () => {
+    public store = async (): Promise<APIGatewayProxyResult> => {
+        try {
+            await this.prerequisites(this.event);
             const body = <unknown>this.event.body;
 
             this.validate(body, this.onStoreValidationSchema);
@@ -111,21 +95,15 @@ export class CrudController extends BaseController {
             const parentId = this.event.pathParameters && this.event.pathParameters.parentId;
             const response = await this.essence.add(<object>body, parseInt(parentId), this.event);
             
-            return {
-                statusCode: 201,
-                body: JSON.stringify(response)
-            };
-        }).catch((error) => {
-            //TODO HANDLER HTTP ERRORS
-            return {
-                statusCode: 500,
-                body: error.error || error
-            };
-        });
+            return this.handleResponse(201, response);
+        } catch(error) {
+            this.handleError(error);
+        }
     };
 
-    public update = async () => {
-        return this.prerequisites(this.event).then(async () => {
+    public update = async (): Promise<APIGatewayProxyResult> => {
+        try {
+            await this.prerequisites(this.event);
             const { id, parentId } = this.event.pathParameters;
             const body = <unknown>this.event.body;
 
@@ -133,36 +111,41 @@ export class CrudController extends BaseController {
             
             const response = await this.essence.edit(parseInt(id), <object>body, parseInt(parentId), this.event);
 
-            return {
-                statusCode: 202,
-                body: JSON.stringify(response)
-            };
-        }).catch((error) => {
-            //TODO HANDLER HTTP ERRORS
-            return {
-                statusCode: 500,
-                body: error.error
-            };
-        });
+            return this.handleResponse(202, response);
+        } catch(error) {
+            this.handleError(error);
+        }
     };
 
-    public remove = async () => {
-        return this.prerequisites(this.event).then(async () => {
+    public remove = async (): Promise<APIGatewayProxyResult> => {
+        try {
+            await this.prerequisites(this.event);
             const { id, parentId } = this.event.pathParameters;
 
             this.validate({id: id}, idSchema);
             const response = await this.essence.delete(parseInt(id), parseInt(parentId), this.event);
 
-            return {
-                statusCode: 204,
-                body: JSON.stringify(response)
-            };
-        }).catch((error) => {
-            //TODO HANDLER HTTP ERRORS
-            return {
-                statusCode: 500,
-                body: error.error
-            };
-        });
+            return this.handleResponse(204, response);
+        } catch(error) {
+            this.handleError(error);
+        }
     };
+
+    private handleError(error) {
+        const errorMessage = error.error || error.Message;
+        const statusCode = error.statusCode || error.status;
+
+        if (statusCode) {
+            throw createError(statusCode, errorMessage);
+        } else {
+            throw new createError.InternalServerError();
+        }
+    }
+
+    private handleResponse(statusCode: number, response): APIGatewayProxyResult {
+        return {
+            statusCode: statusCode,
+            body: JSON.stringify(response)
+        };
+    }
 };

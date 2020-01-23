@@ -32,6 +32,7 @@
     "express": "^4.17.1",
     "formidable": "^1.2.1",
     "glob": "^7.1.6",
+    "http-errors": "^1.7.3",
     "jwks-rsa": "^1.6.0",
     "knex": "^0.19.4",
     "middy": "^0.33.2",
