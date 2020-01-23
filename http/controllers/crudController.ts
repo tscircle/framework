@@ -2,9 +2,9 @@ import {idSchema} from "../../schemas/crudSchema";
 import {BaseController} from "./baseController";
 import {BaseRepository} from "../../repository/baseRepository";
 import {APIGatewayEvent, APIGatewayProxyResult, Context} from "aws-lambda";
-import middy from "middy";
+import * as middy from "middy";
 import { jsonBodyParser, httpErrorHandler, cors } from "middy/middlewares";
-import createError from "http-errors";
+import * as createError from "http-errors";
 
 export interface CustomRoute {
     route: string,
