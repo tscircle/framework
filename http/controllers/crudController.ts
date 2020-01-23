@@ -3,7 +3,7 @@ import {BaseController} from "./baseController";
 import {BaseRepository} from "../../repository/baseRepository";
 import {APIGatewayEvent, APIGatewayProxyResult, Context} from "aws-lambda";
 import middy from "middy";
-import { jsonBodyParser, httpErrorHandler } from "middy/middlewares";
+import { jsonBodyParser, httpErrorHandler, cors } from "middy/middlewares";
 import createError from "http-errors";
 
 export interface CustomRoute {
@@ -58,7 +58,8 @@ export class CrudController extends BaseController {
          
         return middy(restHandler)
             .use(jsonBodyParser())
-            .use(httpErrorHandler());
+            .use(httpErrorHandler())
+            .use(cors());
     }
 
     public setupAPIHandler() {
