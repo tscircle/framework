@@ -4,7 +4,13 @@ import {BaseRepository} from "../../repository/baseRepository";
 import {APIGatewayEvent, APIGatewayProxyResult, Context} from "aws-lambda";
 import middy from "middy";
 import { jsonBodyParser, httpErrorHandler } from "middy/middlewares";
-import createError, { HttpError } from "http-errors";
+import createError from "http-errors";
+
+export interface CustomRoute {
+    route: string,
+    httpMethod: string,
+    method: (event: any) => Promise<any>
+}
 
 export class CrudController extends BaseController {
     route: string;
@@ -13,6 +19,7 @@ export class CrudController extends BaseController {
     itemHandlers: object;
     essence: BaseRepository;
 
+    customRoutes: CustomRoute[];
     onStoreValidationSchema: object;
     onUpdateValidationSchema: object;
 
@@ -29,7 +36,18 @@ export class CrudController extends BaseController {
         const restHandler =  async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
             this.event = event;
             const handlers = (event["pathParameters"] == null) ? this.collectionHandlers : this.itemHandlers;
+            const resource = event["resource"];
             const httpMethod = event["httpMethod"];
+
+            if (this.customRoutes && this.customRoutes.length > 0) {
+                const foundCustomRoute = this.customRoutes.find((customRoute) => {
+                    return customRoute.httpMethod === httpMethod && customRoute.route === resource;
+                });
+
+                if (foundCustomRoute) {
+                    return this.custom(foundCustomRoute.method);
+                }
+            }
 
             if (httpMethod in handlers) {
                 return handlers[httpMethod]();
@@ -130,6 +148,17 @@ export class CrudController extends BaseController {
             this.handleError(error);
         }
     };
+
+    public custom = async (method: (event: any) => Promise<any>): Promise<APIGatewayProxyResult> => {
+        try {
+            await this.prerequisites(this.event);
+            const response = await method(this.event);
+
+            return this.handleResponse(200, response);
+        } catch(error) {
+            this.handleError(error);
+        }
+    }
 
     private handleError(error) {
         const errorMessage = error.error || error.Message;
