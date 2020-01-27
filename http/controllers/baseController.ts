@@ -3,12 +3,16 @@ import {middlewareInterface} from "../middlewares/middlewareInterface";
 import * as Formidable from "formidable";
 import {File} from "formidable";
 import * as createError from "http-errors";
-import {APIGatewayProxyResult, APIGatewayEvent, Context} from "aws-lambda";
+import {APIGatewayProxyResult} from "aws-lambda";
 
 export interface ControllerException {
     status: number,
     error: object | string
 }
+
+export interface Headers {
+    [header: string]: boolean | number | string;
+};
 
 export class BaseController {
     authenticatedUser?: Object;
@@ -88,10 +92,11 @@ export class BaseController {
         }
     }
 
-    public handleResponse(statusCode: number, response): APIGatewayProxyResult {
+    public handleResponse(statusCode: number, response, headers?: Headers): APIGatewayProxyResult {
         return {
             statusCode: statusCode,
-            body: JSON.stringify(response)
+            body: JSON.stringify(response),
+            headers
         };
     }
 }
