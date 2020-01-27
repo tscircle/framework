@@ -1,20 +1,15 @@
-import {BaseController} from '../../../../http/controllers/baseController';
-import {emailContentSchema} from "../schemas/emailContentSchema";
+import {CrudController} from "../../../../http/controllers/crudController";
+import {emailSchema} from "../schemas/emailSchema";
+import {EmailRepository} from "../repositories/emailRepository";
 
 
-export class EmailSpecialPostController extends BaseController {
+export class EmailSpecialPostController extends CrudController {
 
     constructor() {
-        super('email/:parentId/special');
+        super(new EmailRepository());
     }
-
-    validationSchema = emailContentSchema;
-
-    public handler = async (req): Promise<Object> => {
-        return {
-            hello: 'from EmailSpecialController'
-        };
-    };
+    
+    onStoreValidationSchema = emailSchema;
 }
 
 exports.restHandler = new EmailSpecialPostController().setupRestHandler();

@@ -2,29 +2,19 @@ import {AuthProviderInterface} from "../../auth/authProviderInterface";
 import {middlewareInterface} from "../middlewares/middlewareInterface";
 import * as Formidable from "formidable";
 import {File} from "formidable";
+import * as createError from "http-errors";
+import {APIGatewayProxyResult, APIGatewayEvent, Context} from "aws-lambda";
 
 export interface ControllerException {
     status: number,
-    error: object
+    error: object | string
 }
 
 export class BaseController {
-    route: string;
     authenticatedUser?: Object;
     middlewares?: Array<middlewareInterface>;
     authProvider?: AuthProviderInterface;
     validationSchema?: Object;
-
-    constructor(route: string) {
-        this.route = route;
-    }
-
-    public setupRestHandler() {
-    }
-
-    public handler = async (req): Promise<Object> => {
-        return {hello: 'world'};
-    };
 
     public prerequisites = (req) => {
         return this.authenticate(req)
@@ -70,7 +60,7 @@ export class BaseController {
         if (error) {
             throw <ControllerException>{
                 status: 422,
-                error: error.details
+                error: JSON.stringify(error.details)
             };
         } else {
             return data;
@@ -86,4 +76,22 @@ export class BaseController {
             })
         })
     };
+
+    public handleError(error) {
+        const errorMessage = error.error || error.Message;
+        const statusCode = error.statusCode || error.status;
+
+        if (statusCode) {
+            throw createError(statusCode, errorMessage);
+        } else {
+            throw new createError.InternalServerError();
+        }
+    }
+
+    public handleResponse(statusCode: number, response): APIGatewayProxyResult {
+        return {
+            statusCode: statusCode,
+            body: JSON.stringify(response)
+        };
+    }
 }

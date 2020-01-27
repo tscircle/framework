@@ -1,17 +1,13 @@
-import {BaseController} from '../../../../http/controllers/baseController';
+import {CrudController} from "../../../../http/controllers/crudController";
+import {EmailRepository} from "../repositories/emailRepository";
 
 
-export class EmailSpecialController extends BaseController {
+export class EmailSpecialController extends CrudController {
 
     constructor() {
-        super('email/:parentId/special');
+        super(new EmailRepository());
     }
 
-    public handler = async (req): Promise<Object> => {
-        return {
-            hello: 'from EmailSpecialController'
-        };
-    };
 }
 
 exports.restHandler = new EmailSpecialController().setupRestHandler();

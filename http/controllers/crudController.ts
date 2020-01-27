@@ -13,7 +13,6 @@ export interface CustomRoute {
 }
 
 export class CrudController extends BaseController {
-    route: string;
     collectionHandlers: object;
     event: APIGatewayEvent;
     itemHandlers: object;
@@ -23,11 +22,10 @@ export class CrudController extends BaseController {
     onStoreValidationSchema: object;
     onUpdateValidationSchema: object;
 
-    constructor(route: string, essence: BaseRepository) {
-        super(route);
+    constructor(essence?: BaseRepository) {
+        super();
 
         this.essence = essence;
-        this.route = route;
     }
 
     public setupRestHandler() {
@@ -35,7 +33,10 @@ export class CrudController extends BaseController {
         
         const restHandler =  async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
             this.event = event;
-            const handlers = (event["pathParameters"] == null) ? this.collectionHandlers : this.itemHandlers;
+            const hasParentId = event["pathParameters"] && event["pathParameters"].parentId;
+            const hasId = event["pathParameters"] && event["pathParameters"].id;
+            const isCollection = (hasParentId && !hasId) || (!hasParentId && !hasId) || !event["pathParameters"];
+            const handlers = (isCollection) ? this.collectionHandlers : this.itemHandlers;
             const resource = event["resource"];
             const httpMethod = event["httpMethod"];
 
@@ -72,6 +73,7 @@ export class CrudController extends BaseController {
             "DELETE": this.remove,
             "GET": this.show,
             "PUT": this.update,
+            "POST": this.store
         }
     }
 
@@ -108,7 +110,7 @@ export class CrudController extends BaseController {
         try {
             await this.prerequisites(this.event);
             const body = <unknown>this.event.body;
-
+            
             this.validate(body, this.onStoreValidationSchema);
 
             const parentId = this.event.pathParameters && this.event.pathParameters.parentId;
@@ -159,23 +161,5 @@ export class CrudController extends BaseController {
         } catch(error) {
             this.handleError(error);
         }
-    }
-
-    private handleError(error) {
-        const errorMessage = error.error || error.Message;
-        const statusCode = error.statusCode || error.status;
-
-        if (statusCode) {
-            throw createError(statusCode, errorMessage);
-        } else {
-            throw new createError.InternalServerError();
-        }
-    }
-
-    private handleResponse(statusCode: number, response): APIGatewayProxyResult {
-        return {
-            statusCode: statusCode,
-            body: JSON.stringify(response)
-        };
     }
 };

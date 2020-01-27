@@ -1,47 +1,47 @@
 import {expect} from 'chai';
 import 'mocha';
-import * as request from 'supertest';
 import {EmailSpecialController} from "../application/domain/email/controllers/emailSpecialController";
 import {EmailSpecialPostController} from "../application/domain/email/controllers/emailSpecialPostController";
-
+import * as LambdaTester from "lambda-tester";
+import {event} from './mocks';
 
 describe('Base Controller Tests', () => {
-    it('should respond a predefined response', async () => {
-        const ctr = new EmailSpecialController();
-        const app = ctr.setupRestHandler();
+    it('should handle http errors', async () => {
+        const handler = new EmailSpecialController().setupRestHandler();
+        const extEvent = {
+            ...event,
+            pathParameters: {
+                id: '1',
+            },
+            httpMethod: 'PATCH',
+            resource: 'emailEspecial'
+        }
 
-        const response = await request(app)
-            .get("/email/1/special")
-            .expect(200);
-
-        const data = JSON.parse(response.text);
-        expect(data.hello).to.eql("from EmailSpecialController");
-
+        await LambdaTester(handler)
+            .event(extEvent)
+            .expectResult(result => {
+                expect(result.statusCode).to.eql(405);
+                expect(result.body).to.eql("Method Not Allowed");
+            });
     });
 
     it('should respond a validation error message', async () => {
-        const ctr = new EmailSpecialPostController();
-        const app = ctr.setupRestHandler();
+        const handler = new EmailSpecialPostController().setupRestHandler();
+        const extEvent = {
+            ...event,
+            httpMethod: 'POST',
+            body: {
+            },
+            resource: '/email/1/special'
+        }
 
-        const response = await request(app)
-            .post("/email/1/special")
-            .expect(422);
-
-        const data = JSON.parse(response.text);
-        expect(data[0].message).to.eql('"data" is required');
-    });
-
-    it('should respond a successful response', async () => {
-        const ctr = new EmailSpecialPostController();
-        const app = ctr.setupRestHandler();
-
-        const response = await request(app)
-            .post("/email/1/special")
-            .send({
-                data: 'hello',
-                html: '<html>'
-            })
-            .expect(200);
+        await LambdaTester(handler)
+            .event(extEvent)
+            .expectResult(result => {
+                const data = JSON.parse(result.body);
+                expect(result.statusCode).to.eql(422);
+                expect(data[0].message).to.eql('"name" is required');
+            });
     });
 });
 

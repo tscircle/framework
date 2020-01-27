@@ -1,30 +1,44 @@
 import {expect} from 'chai';
 import 'mocha';
 import {EmailTypeController} from "../application/domain/email/controllers/emailTypeController";
-import * as request from 'supertest';
+import * as LambdaTester from "lambda-tester";
+import {event} from './mocks';
 
 describe('Controller Auth tests', () => {
     it('should return a 401 error', async () => {
-        const ctr = new EmailTypeController();
-        const app = ctr.setupAPIHandler();
+        const handler = new EmailTypeController().setupRestHandler();
+        const extEvent = {
+            ...event,
+            headers: {},
+            pathParameters: null,
+            httpMethod: 'GET',
+            resource: 'emailType'
+        }
 
-        const response = await request(app)
-            .get("/emailType/")
-            .send()
-            .expect(401);
-
-        expect(response.text).to.eql('invalid token');
-
+        await LambdaTester(handler)
+            .event(extEvent)
+            .expectResult(result => {
+                expect(result.body).to.eql('invalid token');
+            });
     });
 
-    it('should return a 200', () => {
-        const ctr = new EmailTypeController();
-        ctr.authProvider = undefined;
-        const app = ctr.setupAPIHandler();
+    it('should return a 200', async () => {
+        const ctrl = new EmailTypeController();
+        ctrl.authProvider = null;
+        const handler = ctrl.setupRestHandler();
 
-        request(app)
-            .get("/emailType/")
-            .send()
-            .expect(200);
+        const extEvent = {
+            ...event,
+            headers: {},
+            pathParameters: null,
+            httpMethod: 'GET',
+            resource: 'emailType'
+        }
+
+        await LambdaTester(handler)
+            .event(extEvent)
+            .expectResult(result => {
+                expect(result.statusCode).to.eql(200);
+            });
     });
 });
