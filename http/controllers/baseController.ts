@@ -4,6 +4,7 @@ import * as Formidable from "formidable";
 import {File} from "formidable";
 import * as createError from "http-errors";
 import {APIGatewayProxyResult} from "aws-lambda";
+import * as _ from "lodash";
 
 export interface ControllerException {
     status: number,
@@ -93,9 +94,11 @@ export class BaseController {
     }
 
     public handleResponse(statusCode: number, response, headers?: Headers): APIGatewayProxyResult {
+        response = _.isObjectLike(response) ? JSON.stringify(response) : response;
+
         return {
             statusCode: statusCode,
-            body: JSON.stringify(response),
+            body: response,
             headers
         };
     }
