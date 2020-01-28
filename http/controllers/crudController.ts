@@ -163,7 +163,7 @@ export class CrudController extends BaseController {
             await this.prerequisites(this.event);
             const response = await method(this.event);
 
-            return this.handleResponse(200, response);
+            return response;
         } catch(error) {
             this.handleError(error);
         }
