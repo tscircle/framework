@@ -25,6 +25,45 @@ describe('Base Controller Tests', () => {
             });
     });
 
+    it('should respond 200 from custom routes', async () => {
+        const handler = new EmailSpecialController().setupRestHandler();
+        const extEvent = {
+            ...event,
+            pathParameters: {
+                teamId: 99,
+            },
+            httpMethod: 'GET',
+            resource: '/email/teams/{teamId}'
+        }
+
+        await LambdaTester(handler)
+            .event(extEvent)
+            .expectResult(result => {
+                expect(result.statusCode).to.eql(200);
+            });
+    });
+
+    it.only('should respond a parsed file multipart/form-data', async () => {
+        const handler = new EmailSpecialController().setupRestHandler();
+        const extEvent = {
+            ...event,
+            headers: {
+                'content-type': 'multipart/form-data; boundary=----WebKitFormBoundaryppsQEwf2BVJeCe0M'
+            },
+            body: 'LS0tLS0tV2ViS2l0Rm9ybUJvdW5kYXJ5cHBzUUV3ZjJCVkplQ2UwTQ0KQ29udGVudC1EaXNwb3NpdGlvbjogZm9ybS1kYXRhOyBuYW1lPSJmb28iDQoNCmJhcg0KLS0tLS0tV2ViS2l0Rm9ybUJvdW5kYXJ5cHBzUUV3ZjJCVkplQ2UwTS0t',
+            isBase64Encoded: true,
+            httpMethod: 'POST',
+            resource: '/email/upload'
+        }
+
+        await LambdaTester(handler)
+            .event(extEvent)
+            .expectResult(result => {
+                const data = JSON.parse(result.body);
+                expect(data).to.deep.equal({ foo: 'bar' })
+            });
+    });
+
     it('should respond a validation error message', async () => {
         const handler = new EmailSpecialPostController().setupRestHandler();
         const extEvent = {

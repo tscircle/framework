@@ -1,7 +1,5 @@
 import {AuthProviderInterface} from "../../auth/authProviderInterface";
 import {middlewareInterface} from "../middlewares/middlewareInterface";
-import * as Formidable from "formidable";
-import {File} from "formidable";
 import * as createError from "http-errors";
 import {APIGatewayProxyResult} from "aws-lambda";
 import * as _ from "lodash";
@@ -70,16 +68,6 @@ export class BaseController {
         } else {
             return data;
         }
-    };
-
-    public getFile = async (req): Promise<File> => {
-        return new Promise(function (resolve, reject) {
-            const form = new Formidable.IncomingForm();
-            form.parse(req, function (err, fields, files) {
-                if (err) return reject(err);
-                resolve(files.file)
-            })
-        })
     };
 
     public handleError(error) {
