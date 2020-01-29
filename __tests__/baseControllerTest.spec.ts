@@ -1,47 +1,95 @@
 import {expect} from 'chai';
 import 'mocha';
-import * as request from 'supertest';
 import {EmailSpecialController} from "../application/domain/email/controllers/emailSpecialController";
-import {EmailSpecialPostController} from "../application/domain/email/controllers/emailSpecialPostController";
-
+import {BaseController} from "../http/controllers/baseController";
+import * as LambdaTester from "lambda-tester";
+import {event} from './mocks';
+import {APIGatewayEvent} from "aws-lambda";
 
 describe('Base Controller Tests', () => {
-    it('should respond a predefined response', async () => {
-        const ctr = new EmailSpecialController();
-        const app = ctr.setupAPIHandler();
+    it('should handle http errors', async () => {
+        const handler = new EmailSpecialController().setupRestHandler();
+        const extEvent = <APIGatewayEvent> {
+            ...event,
+            pathParameters: {
+                id: '1',
+            },
+            httpMethod: 'PATCH',
+            resource: 'emailEspecial'
+        }
 
-        const response = await request(app)
-            .get("/email/1/special")
-            .expect(200);
-
-        const data = JSON.parse(response.text);
-        expect(data.hello).to.eql("from EmailSpecialController");
-
+        await LambdaTester(handler)
+            .event(extEvent)
+            .expectResult(result => {
+                expect(result.statusCode).to.eql(405);
+                expect(result.body).to.eql("Method Not Allowed");
+            });
     });
 
-    it('should respond a validation error message', async () => {
-        const ctr = new EmailSpecialPostController();
-        const app = ctr.setupAPIHandler();
+    it('should respond 200 from custom routes', async () => {
+        const handler = new EmailSpecialController().setupRestHandler();
+        const extEvent = <APIGatewayEvent> {
+            ...event,
+            pathParameters: {
+                teamId: '99',
+            },
+            httpMethod: 'GET',
+            resource: '/email/teams/{teamId}'
+        }
 
-        const response = await request(app)
-            .post("/email/1/special")
-            .expect(422);
-
-        const data = JSON.parse(response.text);
-        expect(data[0].message).to.eql('"data" is required');
+        await LambdaTester(handler)
+            .event(extEvent)
+            .expectResult(result => {
+                expect(result.statusCode).to.eql(200);
+            });
     });
 
-    it('should respond a successful response', async () => {
-        const ctr = new EmailSpecialPostController();
-        const app = ctr.setupAPIHandler();
+    it('should respond a parsed file multipart/form-data', async () => {
+        const handler = new EmailSpecialController().setupRestHandler();
+        const extEvent = <APIGatewayEvent> {
+            ...event,
+            headers: {
+                'content-type': 'multipart/form-data; boundary=----WebKitFormBoundaryppsQEwf2BVJeCe0M'
+            },
+            body: 'LS0tLS0tV2ViS2l0Rm9ybUJvdW5kYXJ5cHBzUUV3ZjJCVkplQ2UwTQ0KQ29udGVudC1EaXNwb3NpdGlvbjogZm9ybS1kYXRhOyBuYW1lPSJmb28iDQoNCmJhcg0KLS0tLS0tV2ViS2l0Rm9ybUJvdW5kYXJ5cHBzUUV3ZjJCVkplQ2UwTS0t',
+            isBase64Encoded: true,
+            httpMethod: 'POST',
+            resource: '/email/upload'
+        }
 
-        const response = await request(app)
-            .post("/email/1/special")
-            .send({
-                data: 'hello',
-                html: '<html>'
-            })
-            .expect(200);
+        await LambdaTester(handler)
+            .event(extEvent)
+            .expectResult(result => {
+                const data = JSON.parse(result.body);
+                expect(data).to.deep.equal({ foo: 'bar' })
+            });
+    });
+
+    it('handleResponse should respond a plain string body', async () => {
+        const baseController = new BaseController();
+        const response = baseController.handleResponse(200, 'Hello') 
+
+        expect(response.body).to.eql('Hello');
+    });
+
+    it('handleResponse should respond a stringify string object', async () => {
+        const baseController = new BaseController();
+        const response = baseController.handleResponse(200, { foo: 'bar' }) 
+        const body = JSON.parse(response.body);
+
+        expect(body).to.deep.equal({ foo: 'bar' })
+    });
+
+    it('handleError should throw InternalServerError error', async () => {
+        const baseController = new BaseController();
+
+        expect(() => baseController.handleError({})).to.throw('Internal Server Error');
+    });
+
+    it('handleError should throw badRequest error', async () => {
+        const baseController = new BaseController();
+
+        expect(() => baseController.handleError({statusCode: 400})).to.throw('Bad Request');
     });
 });
 

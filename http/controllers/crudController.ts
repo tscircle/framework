@@ -1,116 +1,173 @@
 import {idSchema} from "../../schemas/crudSchema";
 import {BaseController} from "./baseController";
 import {BaseRepository} from "../../repository/baseRepository";
+import {APIGatewayEvent, APIGatewayProxyResult, Context} from "aws-lambda";
+import * as middy from "middy";
+import {
+    jsonBodyParser,
+    httpErrorHandler,
+    cors,
+    httpMultipartBodyParser,
+} from "middy/src/middlewares";
+import * as createError from "http-errors";
 
-const express = require("express");
-const serverless = require("serverless-http");
-const bodyParser = require("body-parser");
-const app = express();
+type CustomMethod =  (event: APIGatewayEvent) => Promise<APIGatewayProxyResult>;
 
-app.use(bodyParser.json());
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Credentials", true);
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
+export interface CustomRoute {
+    route: string,
+    httpMethod: string,
+    method: CustomMethod
+}
 
 export class CrudController extends BaseController {
-    route: string;
+    collectionHandlers: object;
+    event: APIGatewayEvent;
+    itemHandlers: object;
     essence: BaseRepository;
 
+    customRoutes: CustomRoute[];
     onStoreValidationSchema: object;
     onUpdateValidationSchema: object;
 
-    constructor(route: string, essence: BaseRepository) {
-        super('get', route);
+    constructor(essence?: BaseRepository) {
+        super();
 
         this.essence = essence;
-        this.route = route;
     }
 
     public setupRestHandler() {
         this.setupAPIHandler();
+        
+        const restHandler =  async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+            this.event = event;
+            const hasParentId = event["pathParameters"] && event["pathParameters"].parentId;
+            const hasId = event["pathParameters"] && event["pathParameters"].id;
+            const isCollection = (hasParentId && !hasId) || (!hasParentId && !hasId) || !event["pathParameters"];
+            const handlers = (isCollection) ? this.collectionHandlers : this.itemHandlers;
+            const resource = event["resource"];
+            const httpMethod = event["httpMethod"];
 
-        return serverless(app);
+            if (this.customRoutes && this.customRoutes.length > 0) {
+                const foundCustomRoute = this.customRoutes.find((customRoute) => {
+                    return customRoute.httpMethod === httpMethod && customRoute.route === resource;
+                });
+
+                if (foundCustomRoute) {
+                    return this.custom(foundCustomRoute.method);
+                }
+            }
+
+            if (httpMethod in handlers) {
+                return handlers[httpMethod]();
+            }
+        
+            throw new createError.MethodNotAllowed();
+        }
+         
+        return middy(restHandler)
+            .use(jsonBodyParser())
+            .use(httpErrorHandler())
+            .use(httpMultipartBodyParser())
+            .use(cors());
     }
 
     public setupAPIHandler() {
-        const {route} = this;
-
-        app.get(`/${route}`, this.index);
-        app.get(`/${route}/:id`, this.show);
-        app.post(`/${route}`, this.store);
-        app.put(`/${route}/:id`, this.update);
-        app.delete(`/${route}/:id`, this.remove);
-
-        return app;
+        this.collectionHandlers = {
+            "GET": this.index,
+            "POST": this.store,
+        }
+          
+        this.itemHandlers = {
+            "DELETE": this.remove,
+            "GET": this.show,
+            "PUT": this.update,
+            "POST": this.store
+        }
     }
 
-    public index = async (req, res) => {
-        return this.prerequisites(req).then(async () => {
-            const parentId = req.params.parentId || null;
-            const searchQuery = req.query.searchQuery || null;
-            const searchColumn = req.query.searchColumn || null;
-            const response = await this.essence.getAll(searchQuery, searchColumn, parentId);
+    public index = async (): Promise<APIGatewayProxyResult> => {
+        try {
+            await this.prerequisites(this.event);
+            const parentId: any = this.event.pathParameters && this.event.pathParameters.parentId;
+            const searchQuery = this.event.queryStringParameters && this.event.queryStringParameters.searchQuery;
+            const searchColumn = this.event.queryStringParameters && this.event.queryStringParameters.searchColumn;
+            const response = await this.essence.getAll(searchQuery, searchColumn, parentId, this.event);
 
-            return res.json(response);
-        }).catch((error) => {
-            res.status(error.status || 500).send(error.error);
-        });
+            return this.handleResponse(200, response);
+        } catch(error) {
+            this.handleError(error);
+        }
     };
 
-    public show = async (req, res) => {
-        return this.prerequisites(req).then(async () => {
-            const id = req.params.id;
-            const parentId = req.params.parentId || null;
-            this.validate({id: id}, idSchema);
-            const response = await this.essence.get(id, parentId);
-
-            return res.json(response);
-        }).catch((error) => {
-            res.status(error.status || 500).json(error.error);
-        });
-    };
-
-    public store = async (req, res) => {
-        return this.prerequisites(req).then(async () => {
-            this.validate(req.body, this.onStoreValidationSchema);
-            const parentId = req.params.parentId || null;
-            const response = await this.essence.add(req.body, parentId);
-            return res.status(201).json(response);
-        }).catch((error) => {
-            res.status(error.status || 500).json(error.error);
-        });
-    };
-
-    public update = async (req, res) => {
-        return this.prerequisites(req).then(async () => {
-            const id = req.params.id;
-
-            this.validate(req.body, this.onUpdateValidationSchema);
-            const parentId = req.params.parentId || null;
-            const response = await this.essence.edit(id, req.body, parentId);
-
-            return res.status(202).json(response);
-        }).catch((error) => {
-            res.status(error.status || 500).json(error.error);
-        });
-    };
-
-    public remove = async (req, res) => {
-        return this.prerequisites(req).then(async () => {
-            const id = req.params.id;
+    public show = async (): Promise<APIGatewayProxyResult> => {
+        try {
+            await this.prerequisites(this.event);
+            const { id, parentId } = this.event.pathParameters
 
             this.validate({id: id}, idSchema);
-            const parentId = req.params.parentId || null;
-            const response = await this.essence.delete(id, parentId);
 
-            return res.status(204).json(response);
-        }).catch((error) => {
-            res.status(error.status || 500).json(error.error);
-        });
+            const response = await this.essence.get(parseInt(id), parseInt(parentId), this.event);
+
+            return this.handleResponse(200, response);
+        } catch(error) {
+            this.handleError(error);
+        }
     };
+
+    public store = async (): Promise<APIGatewayProxyResult> => {
+        try {
+            await this.prerequisites(this.event);
+            const body = <unknown>this.event.body;
+            
+            this.validate(body, this.onStoreValidationSchema);
+
+            const parentId = this.event.pathParameters && this.event.pathParameters.parentId;
+            const response = await this.essence.add(<object>body, parseInt(parentId), this.event);
+            
+            return this.handleResponse(201, response);
+        } catch(error) {
+            this.handleError(error);
+        }
+    };
+
+    public update = async (): Promise<APIGatewayProxyResult> => {
+        try {
+            await this.prerequisites(this.event);
+            const { id, parentId } = this.event.pathParameters;
+            const body = <unknown>this.event.body;
+
+            this.validate(body, this.onUpdateValidationSchema);
+            
+            const response = await this.essence.edit(parseInt(id), <object>body, parseInt(parentId), this.event);
+
+            return this.handleResponse(202, response);
+        } catch(error) {
+            this.handleError(error);
+        }
+    };
+
+    public remove = async (): Promise<APIGatewayProxyResult> => {
+        try {
+            await this.prerequisites(this.event);
+            const { id, parentId } = this.event.pathParameters;
+
+            this.validate({id: id}, idSchema);
+            const response = await this.essence.delete(parseInt(id), parseInt(parentId), this.event);
+
+            return this.handleResponse(204, response);
+        } catch(error) {
+            this.handleError(error);
+        }
+    };
+
+    public custom = async (method: CustomMethod) => {
+        try {
+            await this.prerequisites(this.event);
+            const response = await method(this.event);
+
+            return response;
+        } catch(error) {
+            this.handleError(error);
+        }
+    }
 };
-
-export default app;

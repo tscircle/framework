@@ -7,7 +7,7 @@ import {JwtAuth} from "../../../../auth/jwtAuth";
 export class EmailContentController extends CrudController {
 
     constructor() {
-        super("email/:parentId/emailContent", new EmailContentRepository());
+        super(new EmailContentRepository());
         this.authProvider = new JwtAuth();
     }
 

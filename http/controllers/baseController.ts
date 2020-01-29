@@ -1,67 +1,26 @@
 import {AuthProviderInterface} from "../../auth/authProviderInterface";
 import {middlewareInterface} from "../middlewares/middlewareInterface";
-import * as Formidable from "formidable";
-import {File} from "formidable";
-
-const express = require("express");
-const serverless = require("serverless-http");
-const bodyParser = require("body-parser");
-const app = express();
-
-app.use(bodyParser.json());
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Credentials", true);
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
+import * as createError from "http-errors";
+import {APIGatewayProxyResult} from "aws-lambda";
+import * as _ from "lodash";
 
 export interface ControllerException {
-    status: number,
-    error: object
+    status?: number,
+    statusCode?: number,
+    Message?: string,
+    message?: string,
+    error?: object | string,
 }
 
+export interface Headers {
+    [header: string]: boolean | number | string;
+};
+
 export class BaseController {
-    route: string;
-    method: string;
     authenticatedUser?: Object;
     middlewares?: Array<middlewareInterface>;
     authProvider?: AuthProviderInterface;
     validationSchema?: Object;
-
-    constructor(method: string, route: string) {
-        this.method = method;
-        this.route = route;
-    }
-
-    public setupRestHandler() {
-        this.setupAPIHandler();
-
-        return serverless(app);
-    }
-
-    public setupAPIHandler() {
-        const {route} = this;
-
-        app[this.method](`/${route}`, this.index);
-
-        return app;
-    }
-
-    public handler = async (req): Promise<Object> => {
-        return {hello: 'world'};
-    };
-
-    public index = async (req, res) => {
-        return this.prerequisites(req).then(async () => {
-            if (this.validationSchema) {
-                this.validate(req.body, this.validationSchema);
-            }
-            return res.json(await this.handler(req));
-        }).catch((error) => {
-            res.status(error.status || 500).send(error.error);
-        });
-    };
 
     public prerequisites = (req) => {
         return this.authenticate(req)
@@ -107,20 +66,31 @@ export class BaseController {
         if (error) {
             throw <ControllerException>{
                 status: 422,
-                error: error.details
+                error: JSON.stringify(error.details)
             };
         } else {
             return data;
         }
     };
 
-    public getFile = async (req): Promise<File> => {
-        return new Promise(function (resolve, reject) {
-            const form = new Formidable.IncomingForm();
-            form.parse(req, function (err, fields, files) {
-                if (err) return reject(err);
-                resolve(files.file)
-            })
-        })
-    };
+    public handleError(error: ControllerException) {
+        const errorMessage = error.error || error.Message;
+        const statusCode = error.statusCode || error.status;
+
+        if (statusCode) {
+            throw createError(statusCode, errorMessage);
+        } else {
+            throw new createError.InternalServerError();
+        }
+    }
+
+    public handleResponse(statusCode: number, response, headers?: Headers): APIGatewayProxyResult {
+        response = _.isObjectLike(response) ? JSON.stringify(response) : response;
+
+        return {
+            statusCode: statusCode,
+            body: response,
+            ...(headers && {headers})
+        };
+    }
 }

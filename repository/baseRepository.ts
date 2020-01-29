@@ -1,9 +1,10 @@
 import {ControllerException} from "../http/controllers/baseController";
+import {APIGatewayEvent} from "aws-lambda";
 
 export abstract class BaseRepository {
     model: any;
 
-    public async get(id: number, parentId?: number) {
+    public async get(id: number, parentId?: number, event?: APIGatewayEvent) {
         return this.model
             .q()
             .where({[this.model.primaryIdColumn]: id})
@@ -21,7 +22,7 @@ export abstract class BaseRepository {
             });
     }
 
-    public async getAllByIds(parentIds: []) {
+    public async getAllByIds(parentIds: [], event?: APIGatewayEvent) {
         return this.model
             .q()
             .whereIn(this.model.parentIdColumn, parentIds)
@@ -33,7 +34,7 @@ export abstract class BaseRepository {
             });
     }
 
-    public async getAll(searchQuery?: string, searchColumn?: string, parentId?: number) {
+    public async getAll(searchQuery?: string, searchColumn?: string, parentId?: number, event?: APIGatewayEvent) {
         return this.model
             .q()
             .modify((query) => {
@@ -54,7 +55,7 @@ export abstract class BaseRepository {
             });
     }
 
-    public async add(data: object, parentId?: number) {
+    public async add(data: object, parentId?: number, event?: APIGatewayEvent) {
         if (parentId) {
             data = {...data, ...{[this.model.parentIdColumn]: parentId}};
 
@@ -83,7 +84,7 @@ export abstract class BaseRepository {
             });
     }
 
-    public async edit(id: number, data: object, parentId?: number) {
+    public async edit(id: number, data: object, parentId?: number, event?: APIGatewayEvent) {
         return this.model
             .update(id, data)
             .then(res => {
@@ -102,7 +103,7 @@ export abstract class BaseRepository {
             });
     }
 
-    public async delete(id: number, parentId?: number) {
+    public async delete(id: number, parentId?: number, event?: APIGatewayEvent) {
         return this.model
             .q()
             .where({[this.model.primaryIdColumn]: id})

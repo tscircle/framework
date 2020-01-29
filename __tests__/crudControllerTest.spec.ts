@@ -4,108 +4,169 @@ import * as request from 'supertest';
 import {database} from "../database/database";
 import {EmailTypeRepository} from "../application/domain/email/repositories/emailTypeRepository";
 import {EmailController} from "../application/domain/email/controllers/emailController";
+import {event} from './mocks';
+import * as LambdaTester from "lambda-tester";
+import {APIGatewayEvent} from "aws-lambda";
 
 
 describe('Crud Controller Tests', () => {
-    let parenId;
-    let entryId = 99;
+    let parentId: string;
+    let entryId: string;
 
     before(async () => {
         const repository = new EmailTypeRepository();
         await database.migrate.latest();
         const data = await repository.add({name: 'test'});
-        parenId = data.id;
+        parentId = <string> data.id;
     });
 
     it('should respond a validation error response', async () => {
-        const ctr = new EmailController();
-        const app = ctr.setupAPIHandler();
+        const handler = new EmailController().setupRestHandler();
+        parentId
+        const extEvent = <APIGatewayEvent> {
+            ...event,
+            pathParameters: {
+                parentId
+            },
+            httpMethod: 'POST',
+        }
 
-        const response = await request(app)
-            .post('/emailType/' + parenId + '/email')
-            .expect(422);
-
-        const data = JSON.parse(response.text);
-        expect(data[0].message).to.eql('"name" is required');
+        await LambdaTester(handler)
+            .event(extEvent)
+            .expectResult(result => {
+                expect(result.statusCode).to.eql(422);
+                const data = JSON.parse(result.body);
+                expect(data[0].message).to.eql('"name" is required');
+            });
     });
 
-    it('should respond a response code of 200', async () => {
-        const ctr = new EmailController();
-        const app = ctr.setupAPIHandler();
-
-        const response = await request(app)
-            .post('/emailType/' + parenId + '/email')
-            .send({
+    it('should respond a response code of 201', async () => {
+        const handler = new EmailController().setupRestHandler();
+        const extEvent = <APIGatewayEvent> {
+            ...event,
+            pathParameters: {
+                parentId
+            },
+            body: JSON.stringify({
                 name: 'mocha'
-            })
-            .expect(201);
+            }),
+            httpMethod: 'POST',
+            resource: '/emailType/' + parentId + '/email'
+        }
 
-        const data = JSON.parse(response.text);
-        entryId = data.id;
+        await LambdaTester(handler)
+            .event(extEvent)
+            .expectResult(result => {
+                expect(result.statusCode).to.eql(201);
+                const data = JSON.parse(result.body);
+                entryId = data.id;
+            });
     });
 
     it('should contains the created entry', async () => {
-        const ctr = new EmailController();
-        const app = ctr.setupAPIHandler();
+        const handler = new EmailController().setupRestHandler();
+        const extEvent = <APIGatewayEvent> {
+            ...event,
+            pathParameters: {
+                entryId
+            },
+            httpMethod: 'GET',
+            resource: '/emailType/' + parentId + '/email'
+        }
 
-        const response = await request(app)
-            .get('/emailType/' + parenId + '/email')
-            .expect(200);
-
-        const data = JSON.parse(response.text);
-
-        const count = data.filter((item) => {
-            return item.name === 'mocha' &&
-                item.id === entryId;
-        }).length;
-
-        expect(count).to.equals(1);
+        await LambdaTester(handler)
+            .event(extEvent)
+            .expectResult(result => {
+                expect(result.statusCode).to.eql(200);
+                const data = JSON.parse(result.body);
+                const count = data.filter((item) => {
+                    return item.name === 'mocha' &&
+                        item.id === entryId;
+                }).length;
+                expect(count).to.equals(1);
+            });
     });
 
     it('should update the created entry', async () => {
-        const ctr = new EmailController();
-        const app = ctr.setupAPIHandler();
-
-        await request(app)
-            .put('/emailType/' + parenId + '/email/' + entryId)
-            .send({
+        const handler = new EmailController().setupRestHandler();
+        const extEvent = <APIGatewayEvent> {
+            ...event,
+            pathParameters: {
+                parentId,
+                id: entryId
+            },
+            body: JSON.stringify({
                 name: 'm0cha'
-            })
-            .expect(202)
+            }),
+            httpMethod: 'PUT',
+            resource: '/emailType/' + parentId + '/email/' + entryId
+        }
+
+        await LambdaTester(handler)
+            .event(extEvent)
+            .expectResult(result => {
+                expect(result.statusCode).to.eql(202);
+            });
     });
 
     it('should show the updated entry', async () => {
-        const ctr = new EmailController();
-        const app = ctr.setupAPIHandler();
+        const handler = new EmailController().setupRestHandler();
+        const extEvent = <APIGatewayEvent> {
+            ...event,
+            pathParameters: {
+                parentId,
+                id: entryId
+            },
+            httpMethod: 'GET',
+            resource: '/emailType/' + parentId + '/email/' + entryId
+        }
 
-        const response = await request(app)
-            .get('/emailType/' + parenId + '/email/' + entryId)
-            .expect(200);
-
-        const data = JSON.parse(response.text);
-        expect(data).to.property('name', 'm0cha');
-        expect(data).to.property('id', entryId);
-
+        await LambdaTester(handler)
+            .event(extEvent)
+            .expectResult(result => {
+                const data = JSON.parse(result.body);
+                expect(result.statusCode).to.eql(200);
+                expect(data).to.property('name', 'm0cha');
+                expect(data).to.property('id', entryId);
+            });
     });
 
     it('should delete the updated entry', async () => {
-        const ctr = new EmailController();
-        const app = ctr.setupAPIHandler();
+        const handler = new EmailController().setupRestHandler();
+        const extEvent = <APIGatewayEvent> {
+            ...event,
+            pathParameters: {
+                parentId,
+                id: entryId
+            },
+            httpMethod: 'DELETE',
+            resource: '/emailType/' + parentId + '/email/' + entryId
+        }
 
-        await request(app)
-            .delete('/emailType/' + parenId + '/email/' + entryId)
-            .expect(204)
+        await LambdaTester(handler)
+            .event(extEvent)
+            .expectResult(result => {
+                expect(result.statusCode).to.eql(204);
+            });
     });
 
     it('should not contains the updated entry anymore', async () => {
-        const ctr = new EmailController();
-        const app = ctr.setupAPIHandler();
+        const handler = new EmailController().setupRestHandler();
+        const extEvent = <APIGatewayEvent> {
+            ...event,
+            pathParameters: {
+                parentId,
+            },
+            httpMethod: 'GET',
+            resource: '/emailType/' + parentId + '/email'
+        }
 
-        const response = await request(app)
-            .get('/emailType/' + parenId + '/email')
-            .expect(200);
-
-        const data = JSON.parse(response.text);
-        expect(data).to.not.deep.include([{id: entryId}]);
+        await LambdaTester(handler)
+            .event(extEvent)
+            .expectResult(result => {
+                expect(result.statusCode).to.eql(200);
+                const data = JSON.parse(result.body);
+                expect(data).to.not.deep.include([{id: entryId}]);
+            });
     });
 });

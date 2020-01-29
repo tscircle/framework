@@ -46,6 +46,10 @@ jobs:
         command: |
           cd localPrerequisites && ./init.sh
     - run:
+        name: Migrate db
+        command: |
+          npm run migrate:latest
+    - run:
         name: Run tests
         command: |
           npm run test-coverage
