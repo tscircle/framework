@@ -6,29 +6,29 @@ import {EmailTypeRepository} from "../application/domain/email/repositories/emai
 import {EmailController} from "../application/domain/email/controllers/emailController";
 import {event} from './mocks';
 import * as LambdaTester from "lambda-tester";
+import {APIGatewayEvent} from "aws-lambda";
 
 
 describe('Crud Controller Tests', () => {
-    let parentId;
-    let entryId = 99;
+    let parentId: string;
+    let entryId: string;
 
     before(async () => {
         const repository = new EmailTypeRepository();
         await database.migrate.latest();
         const data = await repository.add({name: 'test'});
-        parentId = data.id;
+        parentId = <string> data.id;
     });
 
     it('should respond a validation error response', async () => {
         const handler = new EmailController().setupRestHandler();
-        const extEvent = {
+        parentId
+        const extEvent = <APIGatewayEvent> {
             ...event,
             pathParameters: {
                 parentId
             },
-            body: {},
             httpMethod: 'POST',
-            resource: '/emailType/' + parentId + '/email'
         }
 
         await LambdaTester(handler)
@@ -42,14 +42,14 @@ describe('Crud Controller Tests', () => {
 
     it('should respond a response code of 201', async () => {
         const handler = new EmailController().setupRestHandler();
-        const extEvent = {
+        const extEvent = <APIGatewayEvent> {
             ...event,
             pathParameters: {
                 parentId
             },
-            body: {
+            body: JSON.stringify({
                 name: 'mocha'
-            },
+            }),
             httpMethod: 'POST',
             resource: '/emailType/' + parentId + '/email'
         }
@@ -65,7 +65,7 @@ describe('Crud Controller Tests', () => {
 
     it('should contains the created entry', async () => {
         const handler = new EmailController().setupRestHandler();
-        const extEvent = {
+        const extEvent = <APIGatewayEvent> {
             ...event,
             pathParameters: {
                 entryId
@@ -89,15 +89,15 @@ describe('Crud Controller Tests', () => {
 
     it('should update the created entry', async () => {
         const handler = new EmailController().setupRestHandler();
-        const extEvent = {
+        const extEvent = <APIGatewayEvent> {
             ...event,
             pathParameters: {
                 parentId,
                 id: entryId
             },
-            body: {
+            body: JSON.stringify({
                 name: 'm0cha'
-            },
+            }),
             httpMethod: 'PUT',
             resource: '/emailType/' + parentId + '/email/' + entryId
         }
@@ -111,7 +111,7 @@ describe('Crud Controller Tests', () => {
 
     it('should show the updated entry', async () => {
         const handler = new EmailController().setupRestHandler();
-        const extEvent = {
+        const extEvent = <APIGatewayEvent> {
             ...event,
             pathParameters: {
                 parentId,
@@ -133,7 +133,7 @@ describe('Crud Controller Tests', () => {
 
     it('should delete the updated entry', async () => {
         const handler = new EmailController().setupRestHandler();
-        const extEvent = {
+        const extEvent = <APIGatewayEvent> {
             ...event,
             pathParameters: {
                 parentId,
@@ -152,7 +152,7 @@ describe('Crud Controller Tests', () => {
 
     it('should not contains the updated entry anymore', async () => {
         const handler = new EmailController().setupRestHandler();
-        const extEvent = {
+        const extEvent = <APIGatewayEvent> {
             ...event,
             pathParameters: {
                 parentId,

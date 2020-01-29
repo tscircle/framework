@@ -4,11 +4,12 @@ import {EmailSpecialController} from "../application/domain/email/controllers/em
 import {EmailSpecialPostController} from "../application/domain/email/controllers/emailSpecialPostController";
 import * as LambdaTester from "lambda-tester";
 import {event} from './mocks';
+import {APIGatewayEvent} from "aws-lambda";
 
 describe('Base Controller Tests', () => {
     it('should handle http errors', async () => {
         const handler = new EmailSpecialController().setupRestHandler();
-        const extEvent = {
+        const extEvent = <APIGatewayEvent> {
             ...event,
             pathParameters: {
                 id: '1',
@@ -27,10 +28,10 @@ describe('Base Controller Tests', () => {
 
     it('should respond 200 from custom routes', async () => {
         const handler = new EmailSpecialController().setupRestHandler();
-        const extEvent = {
+        const extEvent = <APIGatewayEvent> {
             ...event,
             pathParameters: {
-                teamId: 99,
+                teamId: '99',
             },
             httpMethod: 'GET',
             resource: '/email/teams/{teamId}'
@@ -45,7 +46,7 @@ describe('Base Controller Tests', () => {
 
     it.only('should respond a parsed file multipart/form-data', async () => {
         const handler = new EmailSpecialController().setupRestHandler();
-        const extEvent = {
+        const extEvent = <APIGatewayEvent> {
             ...event,
             headers: {
                 'content-type': 'multipart/form-data; boundary=----WebKitFormBoundaryppsQEwf2BVJeCe0M'
@@ -66,7 +67,7 @@ describe('Base Controller Tests', () => {
 
     it('should respond a validation error message', async () => {
         const handler = new EmailSpecialPostController().setupRestHandler();
-        const extEvent = {
+        const extEvent = <APIGatewayEvent> {
             ...event,
             httpMethod: 'POST',
             body: {

@@ -3,11 +3,12 @@ import 'mocha';
 import {EmailTypeController} from "../application/domain/email/controllers/emailTypeController";
 import * as LambdaTester from "lambda-tester";
 import {event} from './mocks';
+import {APIGatewayEvent} from "aws-lambda";
 
 describe('Controller Auth tests', () => {
     it('should return a 401 error', async () => {
         const handler = new EmailTypeController().setupRestHandler();
-        const extEvent = {
+        const extEvent = <APIGatewayEvent> {
             ...event,
             headers: {},
             pathParameters: null,
@@ -27,7 +28,7 @@ describe('Controller Auth tests', () => {
         ctrl.authProvider = null;
         const handler = ctrl.setupRestHandler();
 
-        const extEvent = {
+        const extEvent = <APIGatewayEvent> {
             ...event,
             headers: {},
             pathParameters: null,
