@@ -44,7 +44,7 @@ describe('Base Controller Tests', () => {
             });
     });
 
-    it.only('should respond a parsed file multipart/form-data', async () => {
+    it('should respond a parsed file multipart/form-data', async () => {
         const handler = new EmailSpecialController().setupRestHandler();
         const extEvent = <APIGatewayEvent> {
             ...event,
@@ -70,8 +70,6 @@ describe('Base Controller Tests', () => {
         const extEvent = <APIGatewayEvent> {
             ...event,
             httpMethod: 'POST',
-            body: {
-            },
             resource: '/email/1/special'
         }
 

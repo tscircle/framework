@@ -87,7 +87,7 @@ export class BaseController {
         return {
             statusCode: statusCode,
             body: response,
-            headers
+            ...(headers && headers)
         };
     }
 }

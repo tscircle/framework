@@ -11,10 +11,12 @@ import {
 } from "middy/src/middlewares";
 import * as createError from "http-errors";
 
+type CustomMethod =  (event: APIGatewayEvent) => Promise<APIGatewayProxyResult>;
+
 export interface CustomRoute {
     route: string,
     httpMethod: string,
-    method: (event: any) => Promise<any>
+    method: CustomMethod
 }
 
 export class CrudController extends BaseController {
@@ -158,7 +160,7 @@ export class CrudController extends BaseController {
         }
     };
 
-    public custom = async (method: (event: any) => Promise<any>): Promise<APIGatewayProxyResult> => {
+    public custom = async (method: CustomMethod) => {
         try {
             await this.prerequisites(this.event);
             const response = await method(this.event);

@@ -3,7 +3,9 @@ import {APIGatewayEvent} from "aws-lambda";
 export const event: APIGatewayEvent = {
     pathParameters: null,
     body: JSON.stringify({}),
-    headers: null,
+    headers: {
+        'Content-Type': 'application/json'
+    },
     multiValueHeaders: null,
     isBase64Encoded: null,
     httpMethod: 'GET',
