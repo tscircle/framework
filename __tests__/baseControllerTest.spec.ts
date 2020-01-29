@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import 'mocha';
 import {EmailSpecialController} from "../application/domain/email/controllers/emailSpecialController";
-import {EmailSpecialPostController} from "../application/domain/email/controllers/emailSpecialPostController";
+import {BaseController} from "../http/controllers/baseController";
 import * as LambdaTester from "lambda-tester";
 import {event} from './mocks';
 import {APIGatewayEvent} from "aws-lambda";
@@ -65,21 +65,31 @@ describe('Base Controller Tests', () => {
             });
     });
 
-    it('should respond a validation error message', async () => {
-        const handler = new EmailSpecialPostController().setupRestHandler();
-        const extEvent = <APIGatewayEvent> {
-            ...event,
-            httpMethod: 'POST',
-            resource: '/email/1/special'
-        }
+    it('handleResponse should respond a plain string body', async () => {
+        const baseController = new BaseController();
+        const response = baseController.handleResponse(200, 'Hello') 
 
-        await LambdaTester(handler)
-            .event(extEvent)
-            .expectResult(result => {
-                const data = JSON.parse(result.body);
-                expect(result.statusCode).to.eql(422);
-                expect(data[0].message).to.eql('"name" is required');
-            });
+        expect(response.body).to.eql('Hello');
+    });
+
+    it('handleResponse should respond a stringify string object', async () => {
+        const baseController = new BaseController();
+        const response = baseController.handleResponse(200, { foo: 'bar' }) 
+        const body = JSON.parse(response.body);
+
+        expect(body).to.deep.equal({ foo: 'bar' })
+    });
+
+    it('handleError should throw InternalServerError error', async () => {
+        const baseController = new BaseController();
+
+        expect(() => baseController.handleError({})).to.throw('Internal Server Error');
+    });
+
+    it('handleError should throw badRequest error', async () => {
+        const baseController = new BaseController();
+
+        expect(() => baseController.handleError({statusCode: 400})).to.throw('Bad Request');
     });
 });
 

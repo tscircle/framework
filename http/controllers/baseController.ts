@@ -5,8 +5,11 @@ import {APIGatewayProxyResult} from "aws-lambda";
 import * as _ from "lodash";
 
 export interface ControllerException {
-    status: number,
-    error: object | string
+    status?: number,
+    statusCode?: number,
+    Message?: string,
+    message?: string,
+    error?: object | string,
 }
 
 export interface Headers {
@@ -70,7 +73,7 @@ export class BaseController {
         }
     };
 
-    public handleError(error) {
+    public handleError(error: ControllerException) {
         const errorMessage = error.error || error.Message;
         const statusCode = error.statusCode || error.status;
 
