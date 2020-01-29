@@ -1,6 +1,6 @@
 {
   "name": "@tscircle/framework",
-  "version": "0.0.28-21",
+  "version": "0.0.28-23",
   "description": "This package contains the core code of the tscircle framework.",
   "license": "MIT",
   "main": "dist/index.js",
@@ -14,7 +14,7 @@
     "build": "tsc",
     "publish:patch": "tsc && npm version patch && cp package.json /dist && cd dist && npm publish",
     "prebuild": "rimraf dist",
-    "postbuild": "copyfiles -e \"./node_modules/**/*\" \"./**/*.ts\" ./dist"
+    "postbuild": "copyfiles -e \"./node_modules/**/*\" -e \"./dist/**/*\" \"./**/*.ts\" ./dist"
   },
   "repository": {},
   "author": "",
