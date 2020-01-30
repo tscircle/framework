@@ -106,12 +106,6 @@ export class EmailSpecialController extends BaseController {
 exports.restHandler = new EmailSpecialController().setupRestHandler();
 ```
 
-To read a file from a post form request, the getFile method can simply be called in a controller.
-```
-const file = await this.getFile(req);
-};
-```
-
 Validation can be done like this:
 ```
 validationSchema = Joi.object().keys({
@@ -139,9 +133,11 @@ functions:
 
 ```
 import {CrudController} from '@tscricle/framework/http/controllers/crudController';
+import { UserRepository } from "../repositories/userRepository";
+
 export class UserController extends CrudController {
     constructor() {
-        super("users", User);
+        super(new UserRepository());
     }
 ```
 
@@ -160,6 +156,49 @@ Validation can be done like this:
 onStoreValidationSchema = userSchema;
 onUpdateValidationSchema = editUserSchema;
 }
+```
+
+Custom Routes can be added like this:
+```
+functions:
+  userRestEndpoint:
+    handler: application/domain/users/controllers/userController.restHandler
+    events:
+    - http:
+        path: /clients/{id}/wallets/fees/
+        method: ANY
+    - http:
+        path: /clients/{id}/profile/uploadProfilePicture
+        method: ANY
+```
+
+```
+import {CrudController} from '@tscricle/framework/http/controllers/crudController';
+import { UserRepository } from "../repositories/userRepository";
+
+export class UserController extends CrudController {
+    constructor() {
+        super(new UserRepository());
+
+		get customRoutes(): CustomRoute[] {
+          return [
+            {
+                route: '/clients/{id}/wallets/fees/',
+                httpMethod: 'GET',
+                method: this.getWalletsFees
+            },
+            {
+                route: '/clients/{id}/profile/uploadProfilePicture',
+                httpMethod: 'POST',
+                method: this.uploadProfilePicture
+            }
+          ]
+	    }
+	    
+		private getWalletsFees(event) {}
+		//for files handler use multipart/form-data
+		private uploadProfilePicture(event) {}
+    }
 ```
 
 ## State Machine
