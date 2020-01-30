@@ -1,10 +1,9 @@
 import {expect} from 'chai';
 import 'mocha';
-import * as request from 'supertest';
 import {database} from "../database/database";
 import {EmailTypeRepository} from "../application/domain/email/repositories/emailTypeRepository";
 import {EmailController} from "../application/domain/email/controllers/emailController";
-import {event} from './mocks';
+import {event} from '../__mocks__/event';
 import * as LambdaTester from "lambda-tester";
 import {APIGatewayEvent} from "aws-lambda";
 
@@ -22,13 +21,13 @@ describe('Crud Controller Tests', () => {
 
     it('should respond a validation error response', async () => {
         const handler = new EmailController().setupRestHandler();
-        parentId
         const extEvent = <APIGatewayEvent> {
             ...event,
             pathParameters: {
                 parentId
             },
             httpMethod: 'POST',
+            resource: `/emailType/${parentId}/email`
         }
 
         await LambdaTester(handler)
@@ -51,7 +50,7 @@ describe('Crud Controller Tests', () => {
                 name: 'mocha'
             }),
             httpMethod: 'POST',
-            resource: '/emailType/' + parentId + '/email'
+            resource: `/emailType/${parentId}/email`
         }
 
         await LambdaTester(handler)
@@ -71,7 +70,7 @@ describe('Crud Controller Tests', () => {
                 entryId
             },
             httpMethod: 'GET',
-            resource: '/emailType/' + parentId + '/email'
+            resource: `/emailType/${parentId}/email`
         }
 
         await LambdaTester(handler)
@@ -99,7 +98,7 @@ describe('Crud Controller Tests', () => {
                 name: 'm0cha'
             }),
             httpMethod: 'PUT',
-            resource: '/emailType/' + parentId + '/email/' + entryId
+            resource: `/emailType/${parentId}/email/${entryId}`
         }
 
         await LambdaTester(handler)
@@ -118,7 +117,7 @@ describe('Crud Controller Tests', () => {
                 id: entryId
             },
             httpMethod: 'GET',
-            resource: '/emailType/' + parentId + '/email/' + entryId
+            resource: `/emailType/${parentId}/email/${entryId}`
         }
 
         await LambdaTester(handler)
@@ -140,7 +139,7 @@ describe('Crud Controller Tests', () => {
                 id: entryId
             },
             httpMethod: 'DELETE',
-            resource: '/emailType/' + parentId + '/email/' + entryId
+            resource: `/emailType/${parentId}/email/${entryId}`
         }
 
         await LambdaTester(handler)
@@ -158,7 +157,7 @@ describe('Crud Controller Tests', () => {
                 parentId,
             },
             httpMethod: 'GET',
-            resource: '/emailType/' + parentId + '/email'
+            resource: `/emailType/${parentId}/email`
         }
 
         await LambdaTester(handler)

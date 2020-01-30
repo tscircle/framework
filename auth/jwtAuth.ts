@@ -15,7 +15,7 @@ export class JwtAuth implements AuthProviderInterface {
     userProvider?: AuthUserProviderInterface;
 
     defaultError = {
-        error: "invalid token",
+        error: {Message: "invalid token"},
         status: 401
     };
 
