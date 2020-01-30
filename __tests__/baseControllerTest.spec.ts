@@ -3,7 +3,7 @@ import 'mocha';
 import {EmailSpecialController} from "../application/domain/email/controllers/emailSpecialController";
 import {BaseController} from "../http/controllers/baseController";
 import * as LambdaTester from "lambda-tester";
-import {event} from './mocks';
+import {event} from '../__mocks__/event';
 import {APIGatewayEvent} from "aws-lambda";
 
 describe('Base Controller Tests', () => {

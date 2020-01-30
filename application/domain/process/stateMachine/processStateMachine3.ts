@@ -3,7 +3,7 @@ import { MachineConfig, MachineOptions } from "xstate";
 import { Config } from 'knex';
 
 export interface ProcessContext {
-    id?: number
+    id?: number | null
     amount: number;
     type: string;
 }

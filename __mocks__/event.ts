@@ -1,4 +1,4 @@
-import {APIGatewayEvent} from "aws-lambda";
+import {APIGatewayEvent, APIGatewayEventRequestContext} from "aws-lambda";
 
 export const event: APIGatewayEvent = {
     pathParameters: null,
@@ -6,13 +6,13 @@ export const event: APIGatewayEvent = {
     headers: {
         'Content-Type': 'application/json'
     },
-    multiValueHeaders: null,
-    isBase64Encoded: null,
+    multiValueHeaders: {},
+    isBase64Encoded: false,
     httpMethod: 'GET',
     path: '',
     queryStringParameters: null,
     multiValueQueryStringParameters: null,
     stageVariables: null,
     resource: '',
-    requestContext: null
+    requestContext: <APIGatewayEventRequestContext> {}
 }

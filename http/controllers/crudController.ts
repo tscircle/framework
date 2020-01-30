@@ -3,6 +3,7 @@ import {BaseController} from "./baseController";
 import {BaseRepository} from "../../repository/baseRepository";
 import {APIGatewayEvent, APIGatewayProxyResult, Context} from "aws-lambda";
 import * as middy from "middy";
+import * as _ from 'lodash';
 import {
     jsonBodyParser,
     httpErrorHandler,
@@ -11,12 +12,10 @@ import {
 } from "middy/src/middlewares";
 import * as createError from "http-errors";
 
-type CustomMethod =  (event: APIGatewayEvent) => Promise<APIGatewayProxyResult>;
-
 export interface CustomRoute {
     route: string,
     httpMethod: string,
-    method: CustomMethod
+    method(event: APIGatewayEvent): Promise<APIGatewayProxyResult>
 }
 
 export class CrudController extends BaseController {
@@ -25,13 +24,14 @@ export class CrudController extends BaseController {
     itemHandlers: object;
     essence: BaseRepository;
 
-    customRoutes: CustomRoute[];
+    customRoutes?: CustomRoute[] | undefined;
     onStoreValidationSchema: object;
     onUpdateValidationSchema: object;
 
-    constructor(essence?: BaseRepository) {
+    constructor(essence: BaseRepository) {
         super();
 
+        
         this.essence = essence;
     }
 
@@ -52,7 +52,7 @@ export class CrudController extends BaseController {
                     return customRoute.httpMethod === httpMethod && customRoute.route === resource;
                 });
 
-                if (foundCustomRoute) {
+                if (foundCustomRoute && foundCustomRoute.method) {
                     return this.custom(foundCustomRoute.method);
                 }
             }
@@ -85,12 +85,12 @@ export class CrudController extends BaseController {
         }
     }
 
-    public index = async (): Promise<APIGatewayProxyResult> => {
+    public index = async (): Promise<APIGatewayProxyResult | undefined> => {
         try {
             await this.prerequisites(this.event);
-            const parentId: any = this.event.pathParameters && this.event.pathParameters.parentId;
-            const searchQuery = this.event.queryStringParameters && this.event.queryStringParameters.searchQuery;
-            const searchColumn = this.event.queryStringParameters && this.event.queryStringParameters.searchColumn;
+            const parentId = _.get(this.event, 'pathParameters.parentId');
+            const searchQuery = _.get(this.event, 'queryStringParameters.searchQuery');
+            const searchColumn = _.get(this.event, 'queryStringParameters.searchColumn');
             const response = await this.essence.getAll(searchQuery, searchColumn, parentId, this.event);
 
             return this.handleResponse(200, response);
@@ -99,10 +99,11 @@ export class CrudController extends BaseController {
         }
     };
 
-    public show = async (): Promise<APIGatewayProxyResult> => {
+    public show = async (): Promise<APIGatewayProxyResult | undefined> => {
         try {
             await this.prerequisites(this.event);
-            const { id, parentId } = this.event.pathParameters
+            const parentId = _.get(this.event, 'pathParameters.parentId');
+            const id = _.get(this.event, 'pathParameters.id');
 
             this.validate({id: id}, idSchema);
 
@@ -114,14 +115,14 @@ export class CrudController extends BaseController {
         }
     };
 
-    public store = async (): Promise<APIGatewayProxyResult> => {
+    public store = async (): Promise<APIGatewayProxyResult | undefined> => {
         try {
             await this.prerequisites(this.event);
             const body = <unknown>this.event.body;
             
             this.validate(body, this.onStoreValidationSchema);
 
-            const parentId = this.event.pathParameters && this.event.pathParameters.parentId;
+            const parentId = _.get(this.event, 'pathParameters.parentId');
             const response = await this.essence.add(<object>body, parseInt(parentId), this.event);
             
             return this.handleResponse(201, response);
@@ -130,10 +131,11 @@ export class CrudController extends BaseController {
         }
     };
 
-    public update = async (): Promise<APIGatewayProxyResult> => {
+    public update = async (): Promise<APIGatewayProxyResult | undefined> => {
         try {
             await this.prerequisites(this.event);
-            const { id, parentId } = this.event.pathParameters;
+            const parentId = _.get(this.event, 'pathParameters.parentId');
+            const id = _.get(this.event, 'pathParameters.id');
             const body = <unknown>this.event.body;
 
             this.validate(body, this.onUpdateValidationSchema);
@@ -146,10 +148,11 @@ export class CrudController extends BaseController {
         }
     };
 
-    public remove = async (): Promise<APIGatewayProxyResult> => {
+    public remove = async (): Promise<APIGatewayProxyResult | undefined> => {
         try {
             await this.prerequisites(this.event);
-            const { id, parentId } = this.event.pathParameters;
+            const parentId = _.get(this.event, 'pathParameters.parentId');
+            const id = _.get(this.event, 'pathParameters.id');
 
             this.validate({id: id}, idSchema);
             const response = await this.essence.delete(parseInt(id), parseInt(parentId), this.event);
@@ -160,7 +163,7 @@ export class CrudController extends BaseController {
         }
     };
 
-    public custom = async (method: CustomMethod) => {
+    public custom  = async (method: (event: APIGatewayEvent) => any)  => {
         try {
             await this.prerequisites(this.event);
             const response = await method(this.event);

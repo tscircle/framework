@@ -9,7 +9,7 @@ export interface ControllerException {
     statusCode?: number,
     Message?: string,
     message?: string,
-    error?: object | string,
+    error?: any,
 }
 
 export interface Headers {
@@ -66,19 +66,25 @@ export class BaseController {
         if (error) {
             throw <ControllerException>{
                 status: 422,
-                error: JSON.stringify(error.details)
+                error: error.details
             };
         } else {
             return data;
         }
     };
 
-    public handleError(error: ControllerException) {
-        const errorMessage = error.error || error.Message;
-        const statusCode = error.statusCode || error.status;
+    public handleError(errorController: ControllerException) {
+        let {error, status, statusCode, message, Message} = errorController;
+        error = _.isObjectLike(error) ? JSON.stringify(error) : null;
+        statusCode = status || statusCode;
+        message = message || Message;
 
         if (statusCode) {
-            throw createError(statusCode, errorMessage);
+            if (error || message) {
+                throw createError(statusCode, error || message)
+            } else {
+                throw createError(statusCode)
+            }
         } else {
             throw new createError.InternalServerError();
         }
