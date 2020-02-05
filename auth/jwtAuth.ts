@@ -24,7 +24,7 @@ export class JwtAuth implements AuthProviderInterface {
     }
 
     public authenticate = (req) => {
-        const token = req.headers.authorization;
+        const token = req.headers.Authorization;
         try {
             const tokenHash = crypto.createHash('md5').update(token).digest("hex");
             return Cache.remember(tokenHash, 60 * 30, async () => {
