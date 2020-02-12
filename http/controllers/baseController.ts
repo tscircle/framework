@@ -74,6 +74,8 @@ export class BaseController {
     };
 
     public handleError(errorController: ControllerException) {
+        console.warn(errorController);
+        
         let {error, status, statusCode, message, Message} = errorController;
         error = _.isObjectLike(error) ? JSON.stringify(error) : null;
         statusCode = status || statusCode;
