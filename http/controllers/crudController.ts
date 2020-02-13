@@ -39,6 +39,8 @@ export class CrudController extends BaseController {
         this.setupAPIHandler();
         
         const restHandler =  async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+            context.callbackWaitsForEmptyEventLoop = false;
+
             this.event = event;
             const hasParentId = event["pathParameters"] && event["pathParameters"].parentId;
             const hasId = event["pathParameters"] && event["pathParameters"].id;
