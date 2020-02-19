@@ -73,25 +73,6 @@ export class BaseController {
         }
     };
 
-    public handleError(errorController: ControllerException) {
-        console.warn(errorController);
-        
-        let {error, status, statusCode, message, Message} = errorController;
-        error = _.isObjectLike(error) ? JSON.stringify(error) : null;
-        statusCode = status || statusCode;
-        message = message || Message;
-
-        if (statusCode) {
-            if (error || message) {
-                throw createError(statusCode, error || message)
-            } else {
-                throw createError(statusCode)
-            }
-        } else {
-            throw new createError.InternalServerError();
-        }
-    }
-
     public handleResponse(statusCode: number, response, headers?: Headers): APIGatewayProxyResult {
         response = _.isObjectLike(response) ? JSON.stringify(response) : response;
 
