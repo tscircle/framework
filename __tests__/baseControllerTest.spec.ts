@@ -79,17 +79,5 @@ describe('Base Controller Tests', () => {
 
         expect(body).to.deep.equal({ foo: 'bar' })
     });
-
-    it('handleError should throw InternalServerError error', async () => {
-        const baseController = new BaseController();
-
-        expect(() => baseController.handleError({})).to.throw('Internal Server Error');
-    });
-
-    it('handleError should throw badRequest error', async () => {
-        const baseController = new BaseController();
-
-        expect(() => baseController.handleError({statusCode: 400})).to.throw('Bad Request');
-    });
 });
 
