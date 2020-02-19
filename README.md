@@ -141,13 +141,42 @@ export class UserController extends CrudController {
     }
 ```
 
-By default the following routes will be created:
+Be careful because the ApiGateway from AWS groups the endpoints by segments, so the same parameters of "/company/{parentId}" and "/company/{parentId}/user/{userId}" like "parentId" cannot be named differently. 
+**Also in such a case "/company/{parentId}/user/{userId}" the first parameter must always be "parentId".**
 ```
-app.get(`/${route}/`, this.index);
-app.get(`/${route}/:id`, this.show);
-app.post(`/${route}/`, this.store);
-app.put(`/${route}/:id`, this.update);
-app.delete(`/${route}/:id`, this.remove);
+companyRestEndpoint:
+  handler: application/domain/company/controllers/companyController.restHandler
+  events:
+  - http:
+      path: /company/{parentId}
+      method: ANY
+      cors: true
+  - http:
+      path: /company
+      method: ANY
+      cors: true
+
+useCompanyRestEndpoint:
+  handler: application/domain/company/controllers/companyUserController.restHandler
+  events:
+  - http:
+      path: /company/{parentId}/user/{userId}
+      method: ANY
+      cors: true
+  - http:
+      path: /company/{parentId}/user
+      method: ANY
+      cors: true
+
+```
+
+By default the following routes are created and the corresponding functions are called:
+```
+${route}/ =>  this.index
+${route}/:id => this.show
+${route}/ => this.store
+${route}/:id => this.update
+${route}/:id => this.remove
 ```
 
 
