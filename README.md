@@ -187,6 +187,26 @@ onUpdateValidationSchema = editUserSchema;
 }
 ```
 
+To handle the lambda response from the extended CrudController class the property hasHandleResponse should be set to true
+```
+// controller.ts
+export class Controller extends CrudController {
+  hasHandleResponse = true; //default: false
+  ...
+}
+// repository.ts
+  ...
+  public async get(id: number, parentId?: number | undefined, event?: APIGatewayProxyEvent | undefined) {
+
+    return {
+        body: string,
+        statusCode: 200
+    }
+  }
+  ...
+}
+```
+
 Custom Routes can be added like this:
 ```
 functions:
