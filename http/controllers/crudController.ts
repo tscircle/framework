@@ -96,7 +96,7 @@ export class CrudController extends BaseController {
             searchColumn = _.get(this.event, 'queryStringParameters.searchColumn');
             const response = await this.essence.getAll(searchQuery, searchColumn, parentId, this.event);
 
-            return this.handleResponse(200, response);
+            return this.hasHandleResponse ? response : this.handleResponse(200, response);
         } catch(error) {
             this.handleError(error);
         }
@@ -111,7 +111,7 @@ export class CrudController extends BaseController {
             this.validate({id: id}, idSchema);
             const response = await this.essence.get(parseInt(id), parseInt(parentId), this.event);
 
-            return this.handleResponse(200, response);
+            return this.hasHandleResponse ? response : this.handleResponse(200, response);
         } catch(error) {
             this.handleError(error);
         }
@@ -129,7 +129,7 @@ export class CrudController extends BaseController {
             parentId = _.get(this.event, 'pathParameters.parentId');
             const response = await this.essence.add(<object>body, parseInt(parentId), this.event);
             
-            return this.handleResponse(201, response);
+            return this.hasHandleResponse ? response : this.handleResponse(201, response);
         } catch(error) {
             this.handleError(error);
         }
@@ -146,7 +146,7 @@ export class CrudController extends BaseController {
             this.validate(body, this.onUpdateValidationSchema);
             const response = await this.essence.edit(parseInt(id), <object>body, parseInt(parentId), this.event);
 
-            return this.handleResponse(202, response);
+            return this.hasHandleResponse ? response : this.handleResponse(202, response);
         } catch(error) {
             this.handleError(error);
         }
@@ -163,7 +163,7 @@ export class CrudController extends BaseController {
             this.validate({id: id}, idSchema);
             const response = await this.essence.delete(parseInt(id), parseInt(parentId), this.event);
 
-            return this.handleResponse(204, response);
+            return this.hasHandleResponse ? response : this.handleResponse(204, response);
         } catch(error) {
             this.handleError(error);
         }

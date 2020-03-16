@@ -21,6 +21,7 @@ export class BaseController {
     middlewares?: Array<middlewareInterface>;
     authProvider?: AuthProviderInterface;
     validationSchema?: Object;
+    hasHandleResponse?: boolean;
 
     public prerequisites = (req) => {
         return this.authenticate(req)
