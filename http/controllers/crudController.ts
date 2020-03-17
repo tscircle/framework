@@ -94,10 +94,17 @@ export class CrudController extends BaseController {
             parentId = _.get(this.event, 'pathParameters.parentId');
             searchQuery = _.get(this.event, 'queryStringParameters.searchQuery');
             searchColumn = _.get(this.event, 'queryStringParameters.searchColumn');
+        } catch(error) {
+            this.handleError(error);
+        }
+        try {
             const response = await this.essence.getAll(searchQuery, searchColumn, parentId, this.event);
 
             return this.hasHandleResponse ? response : this.handleResponse(200, response);
         } catch(error) {
+            if(this.hasHandleResponse) {
+                throw error;
+            }
             this.handleError(error);
         }
     };
@@ -109,13 +116,19 @@ export class CrudController extends BaseController {
             parentId = _.get(this.event, 'pathParameters.parentId');
             id = _.get(this.event, 'pathParameters.id');
             this.validate({id: id}, idSchema);
+        } catch(error) {
+            this.handleError(error);
+        }
+        try {
             const response = await this.essence.get(parseInt(id), parseInt(parentId), this.event);
 
             return this.hasHandleResponse ? response : this.handleResponse(200, response);
         } catch(error) {
+            if(this.hasHandleResponse) {
+                throw error;
+            }
             this.handleError(error);
         }
-
     };
 
     public store = async (): Promise<APIGatewayProxyResult | undefined> => {
@@ -127,13 +140,19 @@ export class CrudController extends BaseController {
             this.validate(body, this.onStoreValidationSchema);
 
             parentId = _.get(this.event, 'pathParameters.parentId');
+        } catch(error) {
+            this.handleError(error);
+        }
+        try {
             const response = await this.essence.add(<object>body, parseInt(parentId), this.event);
             
             return this.hasHandleResponse ? response : this.handleResponse(201, response);
         } catch(error) {
+            if(this.hasHandleResponse) {
+                throw error;
+            }
             this.handleError(error);
         }
-
     };
 
     public update = async (): Promise<APIGatewayProxyResult | undefined> => {
@@ -144,13 +163,19 @@ export class CrudController extends BaseController {
             id = _.get(this.event, 'pathParameters.id');
             body = <unknown>this.event.body;
             this.validate(body, this.onUpdateValidationSchema);
+        } catch(error) {
+            this.handleError(error);
+        }
+        try {
             const response = await this.essence.edit(parseInt(id), <object>body, parseInt(parentId), this.event);
 
             return this.hasHandleResponse ? response : this.handleResponse(202, response);
         } catch(error) {
+            if(this.hasHandleResponse) {
+                throw error;
+            }
             this.handleError(error);
         }
-        
     };
 
     public remove = async (): Promise<APIGatewayProxyResult | undefined> => {
@@ -161,13 +186,19 @@ export class CrudController extends BaseController {
             id = _.get(this.event, 'pathParameters.id');
 
             this.validate({id: id}, idSchema);
+        } catch(error) {
+            this.handleError(error);
+        }
+        try {
             const response = await this.essence.delete(parseInt(id), parseInt(parentId), this.event);
 
             return this.hasHandleResponse ? response : this.handleResponse(204, response);
         } catch(error) {
+            if(this.hasHandleResponse) {
+                throw error;
+            }
             this.handleError(error);
         }
-
     };
 
     public custom  = async (method: (event: APIGatewayEvent) => any)  => {
