@@ -57,6 +57,8 @@ export class processStateMachine3 extends stateMachine {
     protected config = config;
     protected options = options;
 
+    protected smName: string = 'processStateMachine3';
+
     constructor(context: ProcessContext) {
         super()
         if (context.id) {

@@ -12,6 +12,7 @@ export default abstract class stateMachine {
     protected smInstance;
     public state: State<any>;
     public service: Interpreter<any>;
+    protected smName: string;
 
     public async create(context: Object): Promise<any> {
         this.sm = Machine(this.config, this.options);
@@ -23,7 +24,7 @@ export default abstract class stateMachine {
             await this.store().catch((err) => err)
         })
 
-        const model = await this.smRepository.addMachine(this.constructor.name, this.state);
+        const model = await this.smRepository.addMachine(this.smName, this.state);
         await this.smHistoryRepository.addMachineHistory(model.id, this.state);
 
         this.id = model.id;
@@ -49,7 +50,7 @@ export default abstract class stateMachine {
         this.sm = Machine(this.config);
         const data = await this.smRepository.get(id);
 
-        if (data.filename !== this.constructor.name) {
+        if (data.filename !== this.smName) {
             throw new Error('State machine does not belong to class');
         }
 

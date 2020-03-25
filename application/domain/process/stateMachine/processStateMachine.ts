@@ -14,6 +14,8 @@ export class processStateMachine extends stateMachine {
 
     protected options: any;
 
+    protected smName: string = 'processStateMachine';
+
     protected config: MachineConfig<ProcessContext, any, any> = {
         id: 'quiet',
         initial: 'start',
