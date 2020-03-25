@@ -12,18 +12,20 @@ export default abstract class stateMachine {
     protected smInstance;
     public state: State<any>;
     public service: Interpreter<any>;
+    protected smName: string;
 
-    public async create(context: Object): Promise<any> {
+    public async create(context: Object, smName: string): Promise<any> {
         this.sm = Machine(this.config, this.options);
         this.smInstance = this.sm.withContext(context);
         this.state = this.smInstance.initialState;
+        this.smName = smName;
 
         this.service = interpret(this.sm).start(this.state).onTransition(async (state) => {
             this.state = state;
             await this.store().catch((err) => err)
         })
 
-        const model = await this.smRepository.addMachine(this.constructor.name, this.state);
+        const model = await this.smRepository.addMachine(this.smName, this.state);
         await this.smHistoryRepository.addMachineHistory(model.id, this.state);
 
         this.id = model.id;
