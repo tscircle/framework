@@ -8,8 +8,8 @@ export interface ProcessContext {
 
 export class processStateMachine2 extends stateMachine {
 
-    public async create(context: ProcessContext) {
-        return super.create(context);
+    public async create(context: ProcessContext, smName: string) {
+        return super.create(context, smName);
     }
 
     protected options: any;

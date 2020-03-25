@@ -57,12 +57,12 @@ export class processStateMachine3 extends stateMachine {
     protected config = config;
     protected options = options;
 
-    constructor(context: ProcessContext) {
+    constructor(context: ProcessContext, smName: string) {
         super()
         if (context.id) {
-            this.load(context.id);
+            this.load(context.id, smName);
         } else {
-            this.create(context);
+            this.create(context, smName);
         }
     }
 }

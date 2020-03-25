@@ -18,7 +18,7 @@ describe('State Machine tests', () => {
         await sm.create({
             amount: 1000,
             type: 'prepay',
-        });
+        }, 'EscrowMachine');
 
         expect(sm.getStatus()).to.be.equals('start');
     });
@@ -28,7 +28,7 @@ describe('State Machine tests', () => {
         await sm.create({
             amount: 1000,
             type: 'prepay',
-        });
+        }, 'EscrowMachine');
 
         const repo = new StateMachineHistoryRepository();
         const historyEntry = await repo.model.q().where('state_machine_id', sm.getId()).first();
@@ -41,7 +41,7 @@ describe('State Machine tests', () => {
         await sm1.create({
             amount: 1000,
             type: 'prepay',
-        });
+        }, 'EscrowMachine');
 
         await sm1.transition('NEXT');
         await sm1.transition('NEXT');
@@ -57,10 +57,10 @@ describe('State Machine tests', () => {
         await sm1.create({
             amount: 1000,
             type: 'prepay',
-        });
+        }, 'EscrowMachine');
 
         let sm2 = new processStateMachine();
-        await sm2.load(sm1.getId());
+        await sm2.load(sm1.getId(), 'EscrowMachine');
 
         expect(sm2.getStatus()).to.be.equals('start');
     });
@@ -70,12 +70,12 @@ describe('State Machine tests', () => {
         await sm1.create({
             amount: 1000,
             type: 'prepay',
-        });
+        }, 'EscrowMachine');
 
         await sm1.transition('NEXT');
 
         let sm2 = new processStateMachine();
-        await sm2.load(sm1.getId());
+        await sm2.load(sm1.getId(), 'EscrowMachine');
 
         expect(sm2.getStatus()).to.be.equals('waiting');
     });
@@ -85,7 +85,7 @@ describe('State Machine tests', () => {
         await sm1.create({
             amount: 1000,
             type: 'prepay',
-        });
+        }, 'EscrowMachine');
 
         await sm1.transition('NEXT');
 
@@ -97,7 +97,7 @@ describe('State Machine tests', () => {
         await sm1.create({
             amount: 1000,
             type: 'prepay',
-        });
+        }, 'EscrowMachine');
 
         await sm1.transition('NEXT');
 
@@ -113,7 +113,7 @@ describe('State Machine tests', () => {
         await sm1.create({
             amount: 1000,
             type: 'prepay',
-        });
+        }, 'EscrowMachine');
 
         await sm1.transition('NEXT');
 
@@ -181,12 +181,12 @@ describe('State Machine tests', () => {
         await sm1.create({
             amount: 1000,
             type: 'prepay',
-        });
+        }, 'EscrowMachine');
 
         let error;
 
         try {
-            await sm2.load(sm1.getId());
+            await sm2.load(sm1.getId(), 'WrongEscrowMachine');
         } catch (e) {
             error = e.message;
         }
@@ -198,7 +198,7 @@ describe('State Machine tests', () => {
         let sm = new processStateMachine3({
             amount: 1000,
             type: 'debit',
-        });
+        }, 'EscrowMachine');
 
         let result
 
