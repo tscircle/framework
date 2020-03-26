@@ -5,7 +5,7 @@
     "declaration": true,
     "inlineSourceMap": true,
     "target": "es6",
-    "lib": ["es5", "es6", "es2015.collection", "es2015.promise", "es2015.core"],
+    "lib": ["es2015", "dom"],
     "outDir": "./dist",
     "moduleResolution": "node",
     "importHelpers": true,
@@ -14,5 +14,5 @@
     "baseUrl": ".",
     "esModuleInterop": false
   },
-  "exclude": ["node_modules", "platforms", "dist", "__tests__"]
+  "exclude": ["node_modules", "platforms", "dist", "__tests__", "**/*.job.ts"]
 }
