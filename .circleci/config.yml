@@ -46,10 +46,6 @@ jobs:
           command: |
             cd localPrerequisites && ./init.sh
       - run:
-          name: Install typescript globaly
-          command: |
-            npm install -g typescript@next
-      - run:
           name: Migrate db
           command: |
             npm run migrate:latest

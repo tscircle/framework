@@ -14,5 +14,5 @@
     "baseUrl": ".",
     "esModuleInterop": false
   },
-  "exclude": ["node_modules", "platforms", "dist", "__tests__", "**/*.job.ts"]
+  "exclude": ["node_modules", "platforms", "dist", "__tests__"]
 }

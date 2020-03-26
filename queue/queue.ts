@@ -1,18 +1,9 @@
 import * as ESSerializer from 'esserializer';
 import { FailedJob } from './failedJob';
-import * as path from "path";
-import { glob } from 'glob';
 
 const AWS = require('aws-sdk');
 
 import getConfig from "../config/config";
-
-require('typescript-require')({
-    nodeLib: false,
-    targetES5: true,
-    exitOnError: true,
-    emitOnError: true
-});
 
 const config = getConfig('queue');
 
