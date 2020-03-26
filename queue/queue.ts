@@ -29,9 +29,15 @@ const MAX_TRY_COUNTS = currentConf.max_tries;
 
 export class Queue {
 
-    public static dispatch(jobClass) {
+    public static classes: Array<any> = [];
 
-        const serializeClass = ESSerializer.serialize(jobClass);
+    public static dispatch(jobClass, payload) {
+
+        this.classes.indexOf(jobClass) === -1 ? this.classes.push(jobClass) : false;
+
+        let instance = new jobClass(payload);
+
+        const serializeClass = ESSerializer.serialize(instance);
         const params = {
             MessageBody: serializeClass,
             QueueUrl: currentConf.endpoint
@@ -57,7 +63,7 @@ export class Queue {
 
     private static async handleMessage(message) {
 
-        const job = ESSerializer.deserialize(message.Body, this.getAllJobClasses());
+        const job = ESSerializer.deserialize(message.Body, this.classes);
 
         try {
             await job.handle();
@@ -84,20 +90,6 @@ export class Queue {
                 return await FailedJob.create(payload);
             }
         }
-    }
-
-    private static getAllJobClasses() {
-        let classes = Array();
-
-        const files = glob.sync(config.jobsPath);
-
-        files.forEach(file => {
-            const relFilePath = path.relative(__dirname, '/' + process.cwd()) + '/' + file;
-            const module = require(relFilePath);
-            classes.push(module[Object.keys(module)[0]]);
-        });
-
-        return classes;
     }
 
     //only used for local env
