@@ -35,7 +35,7 @@ export class Queue {
 
         this.classes.indexOf(jobClass) === -1 ? this.classes.push(jobClass) : false;
 
-        let instance = new jobClass(payload);
+        const instance = new jobClass(payload);
 
         const serializeClass = ESSerializer.serialize(instance);
         const params = {
