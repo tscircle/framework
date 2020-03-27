@@ -53,8 +53,9 @@ export class Queue {
     }
 
     private static async handleMessage(message) {
-        console.log('------------->', message)
-        const job = ESSerializer.deserialize(message.body, this.classes);
+        const messageBody = message.Body ? message.Body : message.body;
+
+        const job = ESSerializer.deserialize(messageBody, this.classes);
 
         try {
             await job.handle();
@@ -66,9 +67,11 @@ export class Queue {
 
             return await sqs.deleteMessage(deleteParams).promise();
         } catch (err) {
+            const messageBody = message.Body ? message.Body : message.body;
+
             const payload = {
-                name: JSON.parse(message.body)['className'],
-                payload: message.body,
+                name: JSON.parse(messageBody)['className'],
+                payload: messageBody,
                 error: err.stack
             };
 
