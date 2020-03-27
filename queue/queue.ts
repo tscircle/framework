@@ -53,7 +53,7 @@ export class Queue {
     }
 
     private static async handleMessage(message) {
-
+        console.log('------------->', message)
         const job = ESSerializer.deserialize(message.body, this.classes);
 
         try {
