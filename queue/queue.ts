@@ -54,7 +54,7 @@ export class Queue {
 
     private static async handleMessage(message) {
 
-        const job = ESSerializer.deserialize(message.Body, this.classes);
+        const job = ESSerializer.deserialize(message.body, this.classes);
 
         try {
             await job.handle();
