@@ -67,8 +67,8 @@ export class Queue {
             return await sqs.deleteMessage(deleteParams).promise();
         } catch (err) {
             const payload = {
-                name: JSON.parse(message.Body)['className'],
-                payload: message.Body,
+                name: JSON.parse(message.body)['className'],
+                payload: message.body,
                 error: err.stack
             };
 
