@@ -8,7 +8,7 @@ import { FailedJob } from "../queue/failedJob";
 
 describe('Queue tests', () => {
     it('should fetch the job', () => {
-        return Queue.dispatch(myJobJob, { email: 'test' })
+        return Queue.dispatch(new myJobJob({ email: 'test' }))
             .then(() => {
                 return Queue.getQueueAttributes()
                     .then((res) => {
@@ -26,8 +26,8 @@ describe('Queue tests', () => {
     });
 
     it('should put the job to the failed jobs table (dld)', () => {
-        return Queue.dispatch(failingJob, { email: 'test' })
-            .then(() => {
+        return Queue.dispatch(new failingJob({ email: 'test' }))
+            .then(async () => {
                 return Queue.fetchJobs();
             }).then((res) => {
                 return Queue.getQueueAttributes()

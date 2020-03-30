@@ -1,5 +1,7 @@
 import * as ESSerializer from 'esserializer';
 import { FailedJob } from './failedJob';
+import * as path from "path";
+import { glob } from 'glob';
 
 const AWS = require('aws-sdk');
 
@@ -18,35 +20,11 @@ const sqs = new AWS.SQS();
 
 const MAX_TRY_COUNTS = currentConf.max_tries;
 
-class Serializer {
-    types: Array<any>;
-
-    constructor(types) { this.types = types; }
-    serialize(object) {
-        let idx = this.types.findIndex((e) => { return e.name ? e.name : e[Object.keys(e)[0]].name == object.constructor.name; });
-        if (idx == -1) throw "type  '" + object.constructor.name + "' not initialized";
-        return JSON.stringify([idx, Object.entries(object)]);
-    }
-    deserialize(jstring) {
-        let array = JSON.parse(jstring);
-        let object = this.types[array[0]][Object.keys(this.types[array[0]])[0]] ? new this.types[array[0]][Object.keys(this.types[array[0]])[0]]() : new this.types[array[0]]();
-        array[1].map(e => { object[e[0]] = e[1]; });
-        return object;
-    }
-}
-
 export class Queue {
 
-    public static classes: Array<any> = [];
+    public static dispatch(jobClass) {
 
-    public static dispatch(jobClass, payload) {
-
-        this.classes.indexOf(jobClass) === -1 ? this.classes.push(jobClass) : false;
-        const serializer = new Serializer(this.classes);
-
-        const instance = jobClass.name ? new jobClass(payload) : new jobClass[Object.keys(jobClass)[0]](payload);
-
-        const serializeClass = serializer.serialize(instance);
+        const serializeClass = ESSerializer.serialize(jobClass);
         const params = {
             MessageBody: serializeClass,
             QueueUrl: currentConf.endpoint
@@ -71,10 +49,8 @@ export class Queue {
     }
 
     private static async handleMessage(message) {
-        const messageBody = message.Body ? message.Body : message.body;
-        const serializer = new Serializer(this.classes);
 
-        const job = serializer.deserialize(messageBody);
+        const job = ESSerializer.deserialize(message.Body, this.getAllJobClasses());
 
         try {
             await job.handle();
@@ -86,11 +62,9 @@ export class Queue {
 
             return await sqs.deleteMessage(deleteParams).promise();
         } catch (err) {
-            const messageBody = message.Body ? message.Body : message.body;
-
             const payload = {
-                name: JSON.parse(messageBody)['className'],
-                payload: messageBody,
+                name: JSON.parse(message.Body)['className'],
+                payload: message.Body,
                 error: err.stack
             };
 
@@ -103,6 +77,20 @@ export class Queue {
                 return await FailedJob.create(payload);
             }
         }
+    }
+
+    private static getAllJobClasses() {
+        let classes = Array();
+
+        const files = glob.sync(config.jobsPath);
+
+        files.forEach(file => {
+            const relFilePath = path.relative(__dirname, '/' + process.cwd()) + '/' + file;
+            const module = require(relFilePath);
+            classes.push(module[Object.keys(module)[0]]);
+        });
+
+        return classes;
     }
 
     //only used for local env
