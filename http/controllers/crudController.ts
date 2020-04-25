@@ -1,7 +1,7 @@
-import { idSchema } from "../../schemas/crudSchema";
-import { BaseController } from "./baseController";
-import { BaseRepository } from "../../repository/baseRepository";
-import { APIGatewayEvent, APIGatewayProxyResult, Context } from "aws-lambda";
+import {idSchema} from "../../schemas/crudSchema";
+import {BaseController} from "./baseController";
+import {BaseRepository} from "../../repository/baseRepository";
+import {APIGatewayEvent, APIGatewayProxyResult, Context} from "aws-lambda";
 import * as middy from "middy";
 import * as _ from 'lodash';
 import {
@@ -31,14 +31,15 @@ export class CrudController extends BaseController {
     constructor(essence: BaseRepository) {
         super();
 
-
+        
         this.essence = essence;
     }
 
     public setupRestHandler() {
         this.setupAPIHandler();
-
-        const restHandler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+        
+        const restHandler =  async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+            context.callbackWaitsForEmptyEventLoop = false;
 
             this.event = event;
             const hasParentId = event["pathParameters"] && event["pathParameters"].parentId;
@@ -61,10 +62,10 @@ export class CrudController extends BaseController {
             if (httpMethod in handlers) {
                 return handlers[httpMethod]();
             }
-
+        
             throw new createError.MethodNotAllowed();
         }
-
+         
         return middy(restHandler)
             .use(jsonBodyParser())
             .use(httpErrorHandler())
@@ -77,7 +78,7 @@ export class CrudController extends BaseController {
             "GET": this.index,
             "POST": this.store,
         }
-
+          
         this.itemHandlers = {
             "DELETE": this.remove,
             "GET": this.show,
@@ -93,15 +94,15 @@ export class CrudController extends BaseController {
             parentId = _.get(this.event, 'pathParameters.parentId');
             searchQuery = _.get(this.event, 'queryStringParameters.searchQuery');
             searchColumn = _.get(this.event, 'queryStringParameters.searchColumn');
-        } catch (error) {
+        } catch(error) {
             this.handleError(error);
         }
         try {
             const response = await this.essence.getAll(searchQuery, searchColumn, parentId, this.event);
 
             return this.hasHandleResponse ? response : this.handleResponse(200, response);
-        } catch (error) {
-            if (this.hasHandleResponse) {
+        } catch(error) {
+            if(this.hasHandleResponse) {
                 throw error;
             }
             this.handleError(error);
@@ -114,16 +115,16 @@ export class CrudController extends BaseController {
             await this.prerequisites(this.event);
             parentId = _.get(this.event, 'pathParameters.parentId');
             id = _.get(this.event, 'pathParameters.id');
-            this.validate({ id: id }, idSchema);
-        } catch (error) {
+            this.validate({id: id}, idSchema);
+        } catch(error) {
             this.handleError(error);
         }
         try {
             const response = await this.essence.get(parseInt(id), parseInt(parentId), this.event);
 
             return this.hasHandleResponse ? response : this.handleResponse(200, response);
-        } catch (error) {
-            if (this.hasHandleResponse) {
+        } catch(error) {
+            if(this.hasHandleResponse) {
                 throw error;
             }
             this.handleError(error);
@@ -135,19 +136,19 @@ export class CrudController extends BaseController {
         try {
             await this.prerequisites(this.event);
             body = <unknown>this.event.body;
-
+            
             this.validate(body, this.onStoreValidationSchema);
 
             parentId = _.get(this.event, 'pathParameters.parentId');
-        } catch (error) {
+        } catch(error) {
             this.handleError(error);
         }
         try {
             const response = await this.essence.add(<object>body, parseInt(parentId), this.event);
-
+            
             return this.hasHandleResponse ? response : this.handleResponse(201, response);
-        } catch (error) {
-            if (this.hasHandleResponse) {
+        } catch(error) {
+            if(this.hasHandleResponse) {
                 throw error;
             }
             this.handleError(error);
@@ -162,15 +163,15 @@ export class CrudController extends BaseController {
             id = _.get(this.event, 'pathParameters.id');
             body = <unknown>this.event.body;
             this.validate(body, this.onUpdateValidationSchema);
-        } catch (error) {
+        } catch(error) {
             this.handleError(error);
         }
         try {
             const response = await this.essence.edit(parseInt(id), <object>body, parseInt(parentId), this.event);
 
             return this.hasHandleResponse ? response : this.handleResponse(202, response);
-        } catch (error) {
-            if (this.hasHandleResponse) {
+        } catch(error) {
+            if(this.hasHandleResponse) {
                 throw error;
             }
             this.handleError(error);
@@ -184,26 +185,26 @@ export class CrudController extends BaseController {
             parentId = _.get(this.event, 'pathParameters.parentId');
             id = _.get(this.event, 'pathParameters.id');
 
-            this.validate({ id: id }, idSchema);
-        } catch (error) {
+            this.validate({id: id}, idSchema);
+        } catch(error) {
             this.handleError(error);
         }
         try {
             const response = await this.essence.delete(parseInt(id), parseInt(parentId), this.event);
 
             return this.hasHandleResponse ? response : this.handleResponse(204, response);
-        } catch (error) {
-            if (this.hasHandleResponse) {
+        } catch(error) {
+            if(this.hasHandleResponse) {
                 throw error;
             }
             this.handleError(error);
         }
     };
 
-    public custom = async (method: (event: APIGatewayEvent) => any) => {
+    public custom  = async (method: (event: APIGatewayEvent) => any)  => {
         try {
             await this.prerequisites(this.event);
-        } catch (error) {
+        } catch(error) {
             this.handleError(error);
         }
         return await method(this.event);
