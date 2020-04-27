@@ -19,6 +19,7 @@ const config = {
             database: 'forge'
         }
     },
+    pool: { min: 0, max: 7 },
     seeds: {
         directory: process.cwd() + '/application/database/seeds'
     },
