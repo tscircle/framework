@@ -1,7 +1,16 @@
 import * as Knex from 'knex'
+import { attachPaginate } from 'knex-paginate';
 
 import getConfig from "../config/config";
 const config = getConfig('db');
 
-export const database = Knex(config as Knex.Config);
+const database: any = Knex(config as Knex.Config);
+
+if (!database.paginate) {
+  attachPaginate();
+}
+
+export {
+  database
+};
 
