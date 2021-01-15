@@ -27,7 +27,7 @@
     "@types/lodash": "^4.14.149",
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.7.5",
-    "aws-sdk": "^2.578.0",
+    "aws-sdk": "^2.814.0",
     "es6-request": "^3.0.5",
     "esserializer": "^1.0.0",
     "express": "^4.17.1",
